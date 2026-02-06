@@ -6,33 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Squad Vote - Reconoce a tu equipo</title>
     <script>
-      // GitHub Pages SPA redirect handler
-      (function(l) {
-        if (l.search) {
-          var q = {};
-          l.search.slice(1).split('&').forEach(function(v) {
-            var a = v.split('=');
-            q[a[0]] = a.slice(1).join('=').replace(/~and~/g, '&');
-          });
-          if (q.p !== undefined) {
-            window.history.replaceState(null, null,
-              l.pathname.slice(0, -1) + (q.p || '') +
-              (q.q ? ('?' + q.q) : '') +
-              l.hash
-            );
-          }
+      // Restaurar ruta desde sessionStorage
+      (function() {
+        var redirectPath = sessionStorage.getItem('redirectPath');
+        if (redirectPath && redirectPath !== '/feedback-app/') {
+          sessionStorage.removeItem('redirectPath');
+          window.history.replaceState(null, null, redirectPath);
         }
-        // Fallback for old redirect method
-        var redirect = sessionStorage.getItem('redirect');
-        if (redirect) {
-          sessionStorage.removeItem('redirect');
-          if (redirect !== l.href) {
-            window.history.replaceState(null, null, redirect);
-          }
-        }
-      }(window.location));
+      })();
     </script>
-    <script type="module" crossorigin src="/feedback-app/assets/index-DttoTVhc.js"></script>
+    <script type="module" crossorigin src="/feedback-app/assets/index-BpTRHb1_.js"></script>
     <link rel="stylesheet" crossorigin href="/feedback-app/assets/index-bnr3tgno.css">
   </head>
   <body>
