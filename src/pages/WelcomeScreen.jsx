@@ -11,25 +11,25 @@ const WelcomeScreen = () => {
       title: "¡Bienvenido a Squad Vote!",
       description: "Reconoce las fortalezas de tu equipo de una forma divertida y significativa",
       emoji: "🦁",
-      gradient: "from-pink-400 to-purple-400"
+      gradient: "from-brand-400 to-brand-600"
     },
     {
       title: "Crea o Únete",
       description: "Forma un equipo o únete a uno existente con un código único",
       emoji: "👥",
-      gradient: "from-purple-400 to-blue-400"
+      gradient: "from-brand-500 to-info"
     },
     {
       title: "Vota y Reconoce",
       description: "Selecciona a un compañero, elige un animal que lo represente y destaca su mejor cualidad",
       emoji: "⭐",
-      gradient: "from-blue-400 to-cyan-400"
+      gradient: "from-info to-brand-400"
     },
     {
       title: "Descubre los Resultados",
       description: "Ve cómo tu equipo te percibe y celebren sus fortalezas juntos",
       emoji: "🎉",
-      gradient: "from-cyan-400 to-teal-400"
+      gradient: "from-brand-500 to-brand-700"
     }
   ];
 
@@ -51,7 +51,7 @@ const WelcomeScreen = () => {
       <div className="w-full pt-8 pb-4">
         <div className="text-center">
           <div className="text-6xl mb-4 animate-bounce">🦁</div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent">
             Squad Vote
           </h1>
         </div>
@@ -75,7 +75,7 @@ const WelcomeScreen = () => {
                 onClick={prevSlide}
                 className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-all"
               >
-                <ChevronLeft className="w-5 h-5 text-gray-600" />
+                <ChevronLeft className="w-5 h-5 text-neutral-600" />
               </button>
             )}
             
@@ -85,8 +85,8 @@ const WelcomeScreen = () => {
                   key={index}
                   className={`h-2 rounded-full transition-all duration-300 ${
                     index === currentSlide 
-                      ? 'w-8 bg-gradient-to-r from-pink-500 to-purple-600' 
-                      : 'w-2 bg-gray-300'
+                      ? 'w-8 bg-gradient-to-r from-brand-500 to-brand-700' 
+                      : 'w-2 bg-neutral-300'
                   }`}
                 />
               ))}
@@ -97,7 +97,7 @@ const WelcomeScreen = () => {
                 onClick={nextSlide}
                 className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-all"
               >
-                <ChevronRight className="w-5 h-5 text-gray-600" />
+                <ChevronRight className="w-5 h-5 text-neutral-600" />
               </button>
             )}
           </div>
@@ -107,7 +107,10 @@ const WelcomeScreen = () => {
       {/* Action Button */}
       <div className="w-full pb-8">
         <button
-          onClick={() => navigate('/squad')}
+          onClick={() => {
+            localStorage.setItem('hasVisited', 'true');
+            navigate('/home');
+          }}
           className="btn-primary w-full text-xl"
         >
           ¡Comenzar!
