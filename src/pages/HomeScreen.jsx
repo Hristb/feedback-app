@@ -4,25 +4,19 @@ import { Users, LogIn, Trophy, TrendingUp, Zap, Star, Award, Target, Calendar, A
 
 const HomeScreen = ({ userProfile, onLogout }) => {
   const navigate = useNavigate();
-  const [squadHistory, setSquadHistory] = useState([]);
+  const [squadHistory, setSquadHistory] = useState(() => {
+    // Cargar historial inicial desde localStorage
+    const historyKey = userProfile?.uid ? `squadHistory_${userProfile.uid}` : 'squadHistory';
+    const saved = localStorage.getItem(historyKey);
+    return saved ? JSON.parse(saved) : [];
+  });
 
-  // Cargar historial cada vez que se monta el componente o cambia userProfile
+  // Recargar historial solo cuando userProfile cambia
   useEffect(() => {
-    const loadHistory = () => {
-      const historyKey = userProfile?.uid ? `squadHistory_${userProfile.uid}` : 'squadHistory';
-      const saved = localStorage.getItem(historyKey);
-      setSquadHistory(saved ? JSON.parse(saved) : []);
-    };
-
-    loadHistory();
-    
-    // Recargar cuando la ventana vuelve a tener foco (volviste de crear squad)
-    window.addEventListener('focus', loadHistory);
-    
-    return () => {
-      window.removeEventListener('focus', loadHistory);
-    };
-  }, [userProfile]);
+    const historyKey = userProfile?.uid ? `squadHistory_${userProfile.uid}` : 'squadHistory';
+    const saved = localStorage.getItem(historyKey);
+    setSquadHistory(saved ? JSON.parse(saved) : []);
+  }, [userProfile?.uid]);
 
   const handleLogout = () => {
     onLogout();

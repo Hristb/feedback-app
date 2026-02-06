@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { doc, setDoc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from './firebase';
@@ -42,8 +42,15 @@ function App() {
           photoURL: user.photoURL,
           authProvider: 'firebase'
         };
-        setUserProfile(profile);
-        localStorage.setItem('userProfile', JSON.stringify(profile));
+        
+        // Solo actualizar si es diferente al perfil actual
+        setUserProfile(prevProfile => {
+          if (!prevProfile || prevProfile.uid !== profile.uid) {
+            localStorage.setItem('userProfile', JSON.stringify(profile));
+            return profile;
+          }
+          return prevProfile;
+        });
       }
       setLoading(false);
     });
@@ -241,7 +248,7 @@ function App() {
   }
 
   return (
-    <Router basename="/feedback-app">
+    <Router>
       <div className="min-h-screen">
         <Routes>
           {/* Login Screen - Solo si NO hay userProfile */}

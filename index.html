@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Squad Vote - Reconoce a tu equipo</title>
     <script>
-      // GitHub Pages SPA redirect handler
+      // Restaurar ruta desde sessionStorage
       (function() {
-        var redirect = sessionStorage.redirect;
-        delete sessionStorage.redirect;
-        if (redirect && redirect !== location.href) {
-          history.replaceState(null, null, redirect);
+        var redirectPath = sessionStorage.getItem('redirectPath');
+        if (redirectPath && redirectPath !== '/feedback-app/') {
+          sessionStorage.removeItem('redirectPath');
+          window.history.replaceState(null, null, redirectPath);
         }
       })();
     </script>
