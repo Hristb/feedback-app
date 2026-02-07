@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Bell, MoreVertical, LogOut, Home, User, ArrowLeft } from 'lucide-react';
+import { Bell, MoreVertical, LogOut, Home, User, ArrowLeft, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { calculateLevel } from '../utils/karmaSystem';
 
 const Header = ({ userName, userProfile, onLogout, showBackToHome = true }) => {
   const navigate = useNavigate();
@@ -20,6 +21,10 @@ const Header = ({ userName, userProfile, onLogout, showBackToHome = true }) => {
   };
 
   const displayName = userName || userProfile?.displayName || 'Usuario';
+  
+  // Calcular nivel del usuario basado en karma points
+  const karmaPoints = userProfile?.karmaPoints || 0;
+  const level = calculateLevel(karmaPoints);
 
   return (
     <header className="bg-white border-b border-neutral-200 sticky top-0 z-50 shadow-sm">
@@ -38,12 +43,21 @@ const Header = ({ userName, userProfile, onLogout, showBackToHome = true }) => {
             )}
             <div className="text-2xl">🦁</div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent">
-              Squad Vote
+              Kudos
             </h1>
           </div>
 
           {/* Right Side - Avatar, Notifications, Menu */}
           <div className="flex items-center gap-3">
+            {/* Karma Points Badge */}
+            {karmaPoints > 0 && (
+              <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r ${level.color} border border-white/20 shadow-sm`}>
+                <Trophy className="w-4 h-4 text-white" />
+                <span className="text-white font-bold text-sm">{karmaPoints}</span>
+                <span className="text-white/80 text-xs">{level.emoji}</span>
+              </div>
+            )}
+
             {/* Notification Bell */}
             <button className="p-2 rounded-full hover:bg-neutral-100 transition-colors relative group">
               <Bell className="w-5 h-5 text-neutral-600 group-hover:text-brand-600 transition-colors" />
@@ -93,6 +107,10 @@ const Header = ({ userName, userProfile, onLogout, showBackToHome = true }) => {
                     </button>
 
                     <button
+                      onClick={() => {
+                        navigate('/profile');
+                        setShowMenu(false);
+                      }}
                       className="w-full px-4 py-3 text-left hover:bg-neutral-50 transition-colors flex items-center gap-3 text-neutral-700"
                     >
                       <User className="w-5 h-5" />

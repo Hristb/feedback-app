@@ -31,8 +31,8 @@ const WelcomeScreen = () => {
       description: "Cada uno es único",
       icon: Heart,
       emoji: "⭐",
-      gradient: "from-secondary via-secondary-dark to-accent",
-      bgPattern: "from-secondary-50 to-accent-50"
+      gradient: "from-purple-500 via-purple-600 to-purple-700",
+      bgPattern: "from-purple-50 to-brand-50"
     }
   ];
 
@@ -105,19 +105,19 @@ const WelcomeScreen = () => {
         {/* Card Principal */}
         <div className="w-full max-w-sm">
           <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${slides[currentSlide].gradient} p-10 shadow-2xl transition-all duration-500 ${isDragging ? 'scale-95' : 'scale-100'}`}>
-            {/* Pattern Background */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -mr-20 -mt-20"></div>
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full -ml-16 -mb-16"></div>
+            {/* Pattern Background - Más oscuro para mejor contraste */}
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-black rounded-full -mr-20 -mt-20"></div>
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-black rounded-full -ml-16 -mb-16"></div>
             </div>
 
             {/* Content */}
             <div className="relative z-10 text-center">
-              <h2 className="text-4xl font-bold text-white mb-4 leading-tight">
+              <h2 className="text-4xl font-bold text-white mb-4 leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
                 {slides[currentSlide].title}
               </h2>
               
-              <p className="text-xl text-white/90 leading-relaxed font-medium">
+              <p className="text-xl text-white leading-relaxed font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
                 {slides[currentSlide].description}
               </p>
             </div>

@@ -2,16 +2,17 @@
 
 **Reconoce las fortalezas que hacen únicos a tus compañeros**
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Version](https://img.shields.io/badge/version-3.0.0-blue)
 ![React](https://img.shields.io/badge/React-18.2-61dafb)
 ![Vite](https://img.shields.io/badge/Vite-5.0-646cff)
 ![Firebase](https://img.shields.io/badge/Firebase-12.9-orange)
+![Gamification](https://img.shields.io/badge/Gamification-Karma_Points-gold)
 
 🔗 **[Ver Demo en Vivo](https://hristb.github.io/feedback-app/)**
 
 ## 🎯 ¿Qué es Kudos?
 
-Kudos es la forma más divertida y significativa de reconocer las fortalezas únicas de cada persona en tu equipo. No solo votas, celebras lo que hace especial a cada compañero.
+Kudos es la forma más divertida y significativa de reconocer las fortalezas únicas de cada persona en tu equipo. No solo votas, celebras lo que hace especial a cada compañero. **Ahora con sistema de gamificación Karma Points** para mantener el compromiso y reconocer la participación constante.
 
 **En 2 minutos puedes:**
 - ✨ Crear o unirte a un equipo con un código
@@ -19,6 +20,53 @@ Kudos es la forma más divertida y significativa de reconocer las fortalezas ún
 - ⭐ Destacar su cualidad más especial
 - 💬 Compartir por qué lo elegiste
 - 🎉 Descubrir cómo te ven los demás
+- 🏆 **Ganar Karma Points y subir de nivel**
+
+## 🆕 Sistema de Karma Points (v3.0)
+
+### 🎮 ¿Qué es Karma?
+
+Un sistema de gamificación que reconoce tu participación activa y constante en Kudos. Cada acción suma puntos que te hacen subir de nivel y desbloquear logros.
+
+### 💎 Niveles de Karma
+
+| Nivel | Puntos | Emoji | Badge |
+|-------|--------|-------|-------|
+| **Bronze** | 0-99 | 🥉 | Novato |
+| **Silver** | 100-499 | 🥈 | Colaborador |
+| **Gold** | 500-1499 | 🥇 | Líder de Reconocimiento |
+| **Platinum** | 1500+ | 💎 | Leyenda del Squad |
+
+### ⚡ Cómo Ganar Karma
+
+- **+10 pts**: Dar un reconocimiento
+- **+15 pts**: Recibir un reconocimiento
+- **+50 pts**: Ser el más votado del squad
+- **+5 pts**: Bonus "Madrugador" (votar en las primeras 24h)
+- **+3 pts**: Bonus por razón detallada (≥50 caracteres)
+- **+5 pts/semana**: Bonus de racha (máx 25 pts)
+- **-20 pts**: No participar en un squad
+- **-50 pts**: Abandonar un squad
+
+### 🏅 Logros Desbloqueables
+
+1. **🎯 Primera Vez**: Da tu primer reconocimiento
+2. **⭐ Popular**: Recibe 10 reconocimientos
+3. **🎁 Generoso**: Da 20 reconocimientos
+4. **💭 Empatía Profunda**: Escribe 10 razones detalladas
+5. **🗂️ Coleccionista**: Recibe 5 animales diferentes
+6. **👨‍🏫 Mentor**: Tu squad alcanza 90%+ de participación
+7. **🌟 Leyenda**: Alcanza 1000 puntos de karma
+8. **🏗️ Arquitecto**: Crea 5 squads
+9. **🦄 Unicornio**: Recibe todas las 24 cualidades
+
+### 📊 Funcionalidades de Karma
+
+- **Leaderboard del Squad**: Ranking en tiempo real con karma, reconocimientos dados/recibidos
+- **Perfil Personal**: Dashboard con estadísticas completas, progreso, logros desbloqueados
+- **Badges Visibles**: Tu nivel aparece en el header y en resultados
+- **Feedback Inmediato**: Notificación de puntos ganados después de votar
+- **Tu Esencia**: Descubre el animal y cualidad más común que recibes
 
 ## 🚀 Características Principales
 

@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Vote, Trophy, Copy, Check } from 'lucide-react';
 import Header from '../components/Header';
+import SquadLeaderboard from '../components/SquadLeaderboard';
+import { calculateSquadStats } from '../utils/karmaSystem';
 
 const SquadDashboard = ({ squad, currentUser, userProfile, onLogout }) => {
   const navigate = useNavigate();
@@ -20,6 +22,9 @@ const SquadDashboard = ({ squad, currentUser, userProfile, onLogout }) => {
   const userVote = squad.votes.find(v => v.voterId === currentUser.userId);
   const votingComplete = squad.members.length > 1 && 
                         squad.votes.length === squad.members.length;
+
+  // Calculate squad stats for leaderboard
+  const squadStats = calculateSquadStats(squad.votes, squad.members);
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(squad.id);
@@ -121,6 +126,13 @@ const SquadDashboard = ({ squad, currentUser, userProfile, onLogout }) => {
           })}
         </div>
       </div>
+
+      {/* Leaderboard - Solo si hay votos */}
+      {squad.votes.length > 0 && (
+        <div className="mb-6">
+          <SquadLeaderboard squadStats={squadStats} currentUserId={currentUser.userId} />
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="space-y-3">

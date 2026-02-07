@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, LogIn, Trophy, TrendingUp, Zap, Star, Award, Target, Calendar, ArrowRight, Clock, Sparkles, LogOut, Copy, Check } from 'lucide-react';
 
-const HomeScreen = ({ userProfile, onLogout }) => {
+const HomeScreen = ({ userProfile, currentUser, squads, onLogout }) => {
   const navigate = useNavigate();
   const [copiedCode, setCopiedCode] = useState(null);
   const [squadHistory, setSquadHistory] = useState(() => {
@@ -11,6 +11,9 @@ const HomeScreen = ({ userProfile, onLogout }) => {
     const saved = localStorage.getItem(historyKey);
     return saved ? JSON.parse(saved) : [];
   });
+
+  // Obtener datos del squad actual
+  const currentSquad = currentUser?.squadCode ? squads[currentUser.squadCode] : null;
 
   // Recargar historial solo cuando userProfile cambia
   useEffect(() => {
@@ -97,46 +100,148 @@ const HomeScreen = ({ userProfile, onLogout }) => {
           </div>
         </div>
 
-        {/* Main Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <button
-            onClick={() => navigate('/squad?mode=create')}
-            className="card hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer group text-left"
-          >
-            <div className="flex items-start gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-neutral-800 mb-2">
-                  Crear Nuevo Squad
-                </h3>
-                <p className="text-neutral-600 text-sm">
-                  Inicia un nuevo equipo y comienza a reconocer fortalezas
-                </p>
-              </div>
-            </div>
-          </button>
+        {/* Main Actions - Vista Dinámica */}
+        {currentUser?.squadCode ? (
+          /* Usuario YA está en un squad - Mostrar squad activo */
+          <>
+            <div className="card bg-gradient-to-br from-brand-500 to-brand-700 text-white mb-6 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="w-5 h-5" />
+                  <span className="text-sm font-semibold uppercase tracking-wide">Tu Squad Activo</span>
+                </div>
+                
+                <h2 className="text-2xl font-bold mb-4">
+                  {currentSquad?.squadName || 'Squad'}
+                </h2>
 
-          <button
-            onClick={() => navigate('/squad?mode=join')}
-            className="card hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer group text-left"
-          >
-            <div className="flex items-start gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-info to-brand-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                <LogIn className="w-8 h-8 text-white" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-neutral-800 mb-2">
-                  Unirse a Squad
-                </h3>
-                <p className="text-neutral-600 text-sm">
-                  Únete a un equipo existente con un código único
-                </p>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="bg-white/20 rounded-xl p-3">
+                    <div className="text-sm opacity-90">Código</div>
+                    <div className="text-xl font-bold font-mono flex items-center gap-2">
+                      {currentUser.squadCode}
+                      <button
+                        onClick={() => copyCode(currentUser.squadCode)}
+                        className="p-1 hover:bg-white/20 rounded transition-colors"
+                      >
+                        {copiedCode === currentUser.squadCode ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="bg-white/20 rounded-xl p-3">
+                    <div className="text-sm opacity-90">Miembros</div>
+                    <div className="text-xl font-bold">
+                      {currentSquad?.members?.length || 0} 👥
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="w-full bg-white text-brand-600 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-brand-50 transition-all"
+                >
+                  Ir al Dashboard
+                  <ArrowRight className="w-5 h-5" />
+                </button>
               </div>
             </div>
-          </button>
-        </div>
+
+            {/* Sección secundaria para crear/unirse a otro squad */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="flex-1 h-px bg-neutral-200"></div>
+                <span className="text-sm text-neutral-500">O explora más opciones</span>
+                <div className="flex-1 h-px bg-neutral-200"></div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <button
+                onClick={() => navigate('/squad?mode=create')}
+                className="card hover:shadow-lg transition-all duration-300 cursor-pointer group text-left border-2 border-dashed border-neutral-300 hover:border-brand-400"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-brand-400 to-brand-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-neutral-800 mb-1">
+                      Crear Otro Squad
+                    </h3>
+                    <p className="text-neutral-600 text-xs">
+                      Inicia un nuevo equipo
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => navigate('/squad?mode=join')}
+                className="card hover:shadow-lg transition-all duration-300 cursor-pointer group text-left border-2 border-dashed border-neutral-300 hover:border-info"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-info to-brand-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                    <LogIn className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-neutral-800 mb-1">
+                      Unirse a Otro
+                    </h3>
+                    <p className="text-neutral-600 text-xs">
+                      Con código de invitación
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </>
+        ) : (
+          /* Usuario NO está en un squad - Vista original */
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <button
+              onClick={() => navigate('/squad?mode=create')}
+              className="card hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer group text-left"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                  <Users className="w-8 h-8 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-neutral-800 mb-2">
+                    Crear Nuevo Squad
+                  </h3>
+                  <p className="text-neutral-600 text-sm">
+                    Inicia un nuevo equipo y comienza a reconocer fortalezas
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/squad?mode=join')}
+              className="card hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer group text-left"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-info to-brand-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                  <LogIn className="w-8 h-8 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-neutral-800 mb-2">
+                    Unirse a Squad
+                  </h3>
+                  <p className="text-neutral-600 text-sm">
+                    Únete a un equipo existente con un código único
+                  </p>
+                </div>
+              </div>
+            </button>
+          </div>
+        )}
 
         {/* Squad History */}
         {squadHistory.length > 0 && (
@@ -192,7 +297,7 @@ const HomeScreen = ({ userProfile, onLogout }) => {
         {/* Info Section */}
         <div className="mt-8 text-center">
           <p className="text-neutral-500 text-sm">
-            Squad Vote te ayuda a reconocer las fortalezas únicas de cada miembro de tu equipo
+            Kudos te ayuda a reconocer las fortalezas únicas de cada miembro de tu equipo
           </p>
         </div>
       </div>

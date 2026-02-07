@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trophy, Heart, ArrowLeft } from 'lucide-react';
+import { Trophy, Heart, ArrowLeft, Sparkles } from 'lucide-react';
 import Header from '../components/Header';
+import { calculateLevel } from '../utils/karmaSystem';
 
 const ResultsScreen = ({ squad, currentUser, userProfile, onLogout }) => {
   const navigate = useNavigate();
@@ -107,12 +108,22 @@ const ResultsScreen = ({ squad, currentUser, userProfile, onLogout }) => {
 
               {/* Member Info */}
               <div className="flex-1">
-                <h4 className="font-bold text-neutral-800 text-lg mb-1">
-                  {result.member.name}
-                  {result.member.id === currentUser.userId && (
-                    <span className="text-xs text-purple-500 ml-2">(Tú)</span>
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="font-bold text-neutral-800 text-lg">
+                    {result.member.name}
+                    {result.member.id === currentUser.userId && (
+                      <span className="text-xs text-purple-500 ml-2">(Tú)</span>
+                    )}
+                  </h4>
+                  
+                  {/* Karma Level Badge */}
+                  {result.member.uid && (
+                    <span className={`text-xs px-2 py-0.5 rounded-full bg-gradient-to-r ${calculateLevel(userProfile?.karmaPoints || 0).color} text-white flex items-center gap-1`}>
+                      <Sparkles className="w-3 h-3" />
+                      {calculateLevel(userProfile?.karmaPoints || 0).emoji}
+                    </span>
                   )}
-                </h4>
+                </div>
                 
                 {result.votesReceived.length === 0 ? (
                   <p className="text-sm text-neutral-500 italic">

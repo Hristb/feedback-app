@@ -4,13 +4,13 @@ import { doc, setDoc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from './firebase';
 import LandingPage from './pages/LandingPage';
-import WelcomeScreen from './pages/WelcomeScreen';
 import LoginScreen from './pages/LoginScreen';
 import HomeScreen from './pages/HomeScreen';
 import CreateOrJoinSquad from './pages/CreateOrJoinSquad';
 import SquadDashboard from './pages/SquadDashboard';
 import VotingScreen from './pages/VotingScreen';
 import ResultsScreen from './pages/ResultsScreen';
+import ProfileScreen from './pages/ProfileScreen';
 
 function App() {
   const [squads, setSquads] = useState({});
@@ -34,24 +34,44 @@ function App() {
 
   // Escuchar cambios de autenticación de Firebase
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const profile = {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName || user.email?.split('@')[0],
-          photoURL: user.photoURL,
-          authProvider: 'firebase'
-        };
-        
-        // Solo actualizar si es diferente al perfil actual
-        setUserProfile(prevProfile => {
-          if (!prevProfile || prevProfile.uid !== profile.uid) {
-            localStorage.setItem('userProfile', JSON.stringify(profile));
-            return profile;
-          }
-          return prevProfile;
-        });
+        // Cargar karma points del usuario desde Firestore
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          const userSnap = await getDoc(userRef);
+          
+          const profile = {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName || user.email?.split('@')[0],
+            photoURL: user.photoURL,
+            authProvider: 'firebase',
+            karmaPoints: userSnap.exists() ? (userSnap.data().karmaPoints || 0) : 0,
+            recognitionsGiven: userSnap.exists() ? (userSnap.data().recognitionsGiven || 0) : 0,
+            recognitionsReceived: userSnap.exists() ? (userSnap.data().recognitionsReceived || 0) : 0
+          };
+          
+          // Solo actualizar si es diferente al perfil actual
+          setUserProfile(prevProfile => {
+            if (!prevProfile || prevProfile.uid !== profile.uid) {
+              localStorage.setItem('userProfile', JSON.stringify(profile));
+              return profile;
+            }
+            return prevProfile;
+          });
+        } catch (error) {
+          console.error('Error loading user karma:', error);
+          const profile = {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName || user.email?.split('@')[0],
+            photoURL: user.photoURL,
+            authProvider: 'firebase',
+            karmaPoints: 0
+          };
+          setUserProfile(profile);
+        }
       }
       setLoading(false);
     });
@@ -84,6 +104,23 @@ function App() {
   }, [currentUser]);
 
   const handleLogin = async (profile) => {
+    // Si tiene uid, cargar karma points desde Firestore
+    if (profile.uid && profile.authProvider !== 'guest') {
+      try {
+        const userRef = doc(db, 'users', profile.uid);
+        const userSnap = await getDoc(userRef);
+        
+        profile.karmaPoints = userSnap.exists() ? (userSnap.data().karmaPoints || 0) : 0;
+        profile.recognitionsGiven = userSnap.exists() ? (userSnap.data().recognitionsGiven || 0) : 0;
+        profile.recognitionsReceived = userSnap.exists() ? (userSnap.data().recognitionsReceived || 0) : 0;
+      } catch (error) {
+        console.error('Error loading karma:', error);
+        profile.karmaPoints = 0;
+      }
+    } else {
+      profile.karmaPoints = 0;
+    }
+    
     setUserProfile(profile);
     localStorage.setItem('userProfile', JSON.stringify(profile));
     
@@ -122,7 +159,12 @@ function App() {
     const newSquad = {
       id: code,
       name: squadName,
-      members: [{ id: userId, name: displayName, isCreator: true }],
+      members: [{ 
+        id: userId, 
+        name: displayName, 
+        isCreator: true,
+        uid: userProfile?.uid // Guardar uid para karma points
+      }],
       votes: []
     };
     
@@ -158,7 +200,12 @@ function App() {
       
       const updatedSquad = {
         ...squad,
-        members: [...squad.members, { id: userId, name: displayName, isCreator: false }]
+        members: [...squad.members, { 
+          id: userId, 
+          name: displayName, 
+          isCreator: false,
+          uid: userProfile?.uid // Guardar uid para karma points
+        }]
       };
       
       await updateDoc(squadRef, updatedSquad);
@@ -232,6 +279,45 @@ function App() {
       };
       
       await updateDoc(squadRef, updatedSquad);
+      
+      // Actualizar karma points del votante (quien da el reconocimiento)
+      if (userProfile?.uid) {
+        const voterRef = doc(db, 'users', userProfile.uid);
+        const voterSnap = await getDoc(voterRef);
+        
+        const currentKarma = voterSnap.exists() ? (voterSnap.data().karmaPoints || 0) : 0;
+        const recognitionsGiven = voterSnap.exists() ? (voterSnap.data().recognitionsGiven || 0) : 0;
+        
+        await setDoc(voterRef, {
+          karmaPoints: currentKarma + vote.karmaEarned,
+          recognitionsGiven: recognitionsGiven + 1,
+          lastParticipationDate: Date.now()
+        }, { merge: true });
+        
+        // Actualizar userProfile local
+        setUserProfile(prev => ({
+          ...prev,
+          karmaPoints: currentKarma + vote.karmaEarned,
+          recognitionsGiven: recognitionsGiven + 1
+        }));
+      }
+      
+      // Actualizar karma points del receptor (quien recibe el reconocimiento)
+      // Buscar el uid del miembro seleccionado
+      const selectedMember = squad.members.find(m => m.id === vote.selectedMemberId);
+      if (selectedMember?.uid) {
+        const recipientRef = doc(db, 'users', selectedMember.uid);
+        const recipientSnap = await getDoc(recipientRef);
+        
+        const currentKarma = recipientSnap.exists() ? (recipientSnap.data().karmaPoints || 0) : 0;
+        const recognitionsReceived = recipientSnap.exists() ? (recipientSnap.data().recognitionsReceived || 0) : 0;
+        
+        await setDoc(recipientRef, {
+          karmaPoints: currentKarma + 15, // RECEIVE_RECOGNITION points
+          recognitionsReceived: recognitionsReceived + 1
+        }, { merge: true });
+      }
+      
     } catch (error) {
       console.error('Error submitting vote:', error);
     }
@@ -252,16 +338,10 @@ function App() {
     <Router>
       <div className="min-h-screen">
         <Routes>
-          {/* Landing Page - Página principal pública */}
+          {/* Landing Page - Página principal pública con onboarding integrado */}
           <Route 
             path="/" 
             element={<LandingPage />} 
-          />
-
-          {/* Welcome/Onboarding - Carousel explicativo */}
-          <Route 
-            path="/welcome" 
-            element={<WelcomeScreen />} 
           />
 
           {/* Login Screen - Autenticación */}
@@ -284,7 +364,9 @@ function App() {
                 <Navigate to="/login" />
               ) : (
                 <HomeScreen 
-                  userProfile={userProfile} 
+                  userProfile={userProfile}
+                  currentUser={currentUser}
+                  squads={squads}
                   onLogout={handleCompleteLogout} 
                 />
               )
@@ -361,6 +443,22 @@ function App() {
                 />
               ) : (
                 <Navigate to="/home" />
+              )
+            } 
+          />
+
+          {/* Profile - Ver estadísticas personales */}
+          <Route 
+            path="/profile" 
+            element={
+              !userProfile ? (
+                <Navigate to="/login" />
+              ) : (
+                <ProfileScreen 
+                  currentUser={currentUser}
+                  userProfile={userProfile}
+                  onLogout={handleLogout}
+                />
               )
             } 
           />

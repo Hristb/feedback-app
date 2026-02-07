@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { animals, qualities } from '../data/content';
-import { ChevronLeft, Check } from 'lucide-react';
+import { ChevronLeft, Check, Trophy, Sparkles } from 'lucide-react';
 import Header from '../components/Header';
+import { calculateKarmaPoints } from '../utils/karmaSystem';
 
 const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout }) => {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
   const [selectedQuality, setSelectedQuality] = useState(null);
   const [reason, setReason] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [hoveredAnimal, setHoveredAnimal] = useState(null);
+  const [karmaEarned, setKarmaEarned] = useState(0);
 
   if (!squad) return null;
 
@@ -20,6 +23,16 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
   );
 
   const handleSubmit = () => {
+    // Calcular karma points ganados
+    const metadata = {
+      reasonLength: reason.length,
+      isEarlyBird: false, // Se puede mejorar calculando si es de los primeros en votar
+      hasDetailedReason: reason.length >= 50
+    };
+    
+    const pointsEarned = calculateKarmaPoints('GIVE_RECOGNITION', metadata);
+    setKarmaEarned(pointsEarned);
+    
     const vote = {
       voterId: currentUser.userId,
       voterName: currentUser.userName,
@@ -28,7 +41,8 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
       animal: selectedAnimal,
       quality: selectedQuality,
       reason: reason,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      karmaEarned: pointsEarned
     };
 
     onSubmitVote(squad.id, vote);
@@ -41,15 +55,27 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
 
   if (showConfirmation) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-brand-50 via-neutral-50 to-brand-100">
         <div className="card max-w-md w-full text-center">
           <div className="text-6xl mb-4 animate-bounce">✅</div>
           <h2 className="text-2xl font-bold text-neutral-800 mb-2">
             ¡Voto Registrado!
           </h2>
-          <p className="text-neutral-600">
-            Gracias por reconocer a tu compañero
-          </p>
+          
+          {/* Karma Points Earned */}
+          <div className="mt-6 p-4 bg-gradient-to-r from-amber-100 to-yellow-100 rounded-2xl border-2 border-amber-300">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Trophy className="w-6 h-6 text-amber-600" />
+              <span className="text-lg font-bold text-amber-900">¡Karma Ganado!</span>
+            </div>
+            <div className="text-4xl font-bold text-amber-700">+{karmaEarned}</div>
+            <p className="text-sm text-amber-800 mt-1">puntos de karma</p>
+          </div>
+
+          <div className="mt-4 flex items-center justify-center gap-1 text-sm text-neutral-600">
+            <Sparkles className="w-4 h-4 text-brand-500" />
+            <span>Sigue reconociendo a tu equipo para ganar más</span>
+          </div>
         </div>
       </div>
     );
@@ -141,7 +167,7 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pb-4">
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto pb-4">
             {animals.map((animal) => (
               <button
                 key={animal.id}
@@ -149,20 +175,29 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
                   setSelectedAnimal(animal);
                   setStep(3);
                 }}
-                className={`card hover:shadow-xl transition-all hover:scale-105 cursor-pointer ${
+                className={`card w-full hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer text-left group ${
                   selectedAnimal?.id === animal.id
-                    ? 'border-purple-500 bg-purple-50'
-                    : ''
+                    ? 'border-2 border-brand-500 bg-brand-50 shadow-xl scale-[1.02]'
+                    : 'border-2 border-transparent'
                 }`}
               >
-                <div className="text-center">
-                  <div className="text-4xl mb-2">{animal.emoji}</div>
-                  <h3 className="font-bold text-neutral-800 text-sm mb-1">
-                    {animal.name}
-                  </h3>
-                  <p className="text-xs text-neutral-600 line-clamp-2">
-                    {animal.description}
-                  </p>
+                <div className="flex items-start gap-4">
+                  <div className="text-5xl shrink-0 group-hover:scale-110 transition-transform">
+                    {animal.emoji}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-neutral-800 text-lg mb-2">
+                      {animal.name}
+                    </h3>
+                    <p className="text-sm text-neutral-600 leading-relaxed">
+                      {animal.description}
+                    </p>
+                  </div>
+                  {selectedAnimal?.id === animal.id && (
+                    <div className="w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center shrink-0 animate-scale-in">
+                      <Check className="w-5 h-5 text-white" />
+                    </div>
+                  )}
                 </div>
               </button>
             ))}
@@ -191,18 +226,37 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
                   setSelectedQuality(quality);
                   setStep(4);
                 }}
-                className={`card w-full hover:shadow-xl transition-all hover:scale-105 cursor-pointer text-left ${
+                className={`relative overflow-hidden card w-full transition-all duration-300 cursor-pointer text-left group ${
                   selectedQuality?.id === quality.id
-                    ? 'border-purple-500 bg-purple-50'
-                    : ''
+                    ? 'border-2 border-white shadow-2xl scale-105'
+                    : 'hover:shadow-xl hover:scale-105 border-2 border-transparent'
                 }`}
               >
-                <h3 className="font-bold text-neutral-800 mb-1">
-                  {quality.name}
-                </h3>
-                <p className="text-sm text-neutral-600">
-                  {quality.description}
-                </p>
+                {/* Gradiente de fondo */}
+                <div className={`absolute inset-0 bg-gradient-to-r ${quality.gradient} group-hover:brightness-105 transition-all`}></div>
+                
+                {/* Pattern decorativo */}
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-white rounded-full -mr-10 -mt-10"></div>
+                  <div className="absolute bottom-0 left-0 w-16 h-16 bg-white rounded-full -ml-8 -mb-8"></div>
+                </div>
+
+                {/* Contenido */}
+                <div className="relative z-10">
+                  <h3 className="font-bold text-lg mb-1 text-neutral-800 group-hover:scale-105 transition-transform">
+                    {quality.name}
+                  </h3>
+                  <p className="text-sm text-neutral-700">
+                    {quality.description}
+                  </p>
+                </div>
+
+                {/* Icono de check si está seleccionado */}
+                {selectedQuality?.id === quality.id && (
+                  <div className="absolute top-3 right-3 w-8 h-8 bg-neutral-800 rounded-full flex items-center justify-center z-20 animate-scale-in shadow-lg">
+                    <Check className="w-5 h-5 text-white" />
+                  </div>
+                )}
               </button>
             ))}
           </div>

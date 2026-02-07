@@ -131,121 +131,145 @@ export const qualities = [
   {
     id: 1,
     name: "Tu optimismo",
-    description: "Traes esperanza y energía positiva a todos lados"
+    description: "Traes esperanza y energía positiva a todos lados",
+    gradient: "from-yellow-200 via-yellow-300 to-amber-300"
   },
   {
     id: 2,
     name: "Tu enfoque",
-    description: "Te concentras en lo que realmente importa"
+    description: "Te concentras en lo que realmente importa",
+    gradient: "from-blue-200 via-blue-300 to-indigo-300"
   },
   {
     id: 3,
     name: "Tu don de palabras",
-    description: "Te expresas con claridad e impacto"
+    description: "Te expresas con claridad e impacto",
+    gradient: "from-purple-200 via-purple-300 to-pink-300"
   },
   {
     id: 4,
     name: "Tu sabiduría",
-    description: "Entiendes los significados más profundos de la vida"
+    description: "Entiendes los significados más profundos de la vida",
+    gradient: "from-indigo-200 via-indigo-300 to-purple-300"
   },
   {
     id: 5,
     name: "Tu motivación",
-    description: "Inspiras a otros a alcanzar sus objetivos"
+    description: "Inspiras a otros a alcanzar sus objetivos",
+    gradient: "from-orange-200 via-orange-300 to-red-300"
   },
   {
     id: 6,
     name: "Tu influencia",
-    description: "Guías a las personas con fortaleza tranquila"
+    description: "Guías a las personas con fortaleza tranquila",
+    gradient: "from-teal-200 via-teal-300 to-cyan-300"
   },
   {
     id: 7,
     name: "Tu paciencia",
-    description: "Te tomas tiempo para escuchar y entender"
+    description: "Te tomas tiempo para escuchar y entender",
+    gradient: "from-green-200 via-green-300 to-emerald-300"
   },
   {
     id: 8,
     name: "Tu versatilidad",
-    description: "Te adaptas fácilmente a diferentes situaciones"
+    description: "Te adaptas fácilmente a diferentes situaciones",
+    gradient: "from-pink-200 via-pink-300 to-rose-300"
   },
   {
     id: 9,
     name: "Tu valentía",
-    description: "Enfrentas desafíos con coraje"
+    description: "Enfrentas desafíos con coraje",
+    gradient: "from-red-200 via-red-300 to-orange-300"
   },
   {
     id: 10,
     name: "Tu altruismo",
-    description: "Pones las necesidades de otros antes que las tuyas"
+    description: "Pones las necesidades de otros antes que las tuyas",
+    gradient: "from-emerald-200 via-emerald-300 to-teal-300"
   },
   {
     id: 11,
     name: "Tu creatividad",
-    description: "Imaginas posibilidades que otros pierden"
+    description: "Imaginas posibilidades que otros pierden",
+    gradient: "from-violet-200 via-violet-300 to-purple-300"
   },
   {
     id: 12,
     name: "Tu mente aguda",
-    description: "Resuelves problemas con inteligencia"
+    description: "Resuelves problemas con inteligencia",
+    gradient: "from-cyan-200 via-cyan-300 to-blue-300"
   },
   {
     id: 13,
     name: "Tus habilidades organizacionales",
-    description: "Traes orden y estructura al caos"
+    description: "Traes orden y estructura al caos",
+    gradient: "from-slate-200 via-slate-300 to-gray-300"
   },
   {
     id: 14,
     name: "Tu respeto",
-    description: "Honras la dignidad de todas las personas"
+    description: "Honras la dignidad de todas las personas",
+    gradient: "from-sky-200 via-sky-300 to-blue-300"
   },
   {
     id: 15,
     name: "Tu integridad",
-    description: "Vives de acuerdo con tus valores"
+    description: "Vives de acuerdo con tus valores",
+    gradient: "from-blue-200 via-blue-300 to-indigo-300"
   },
   {
     id: 16,
     name: "Tu espíritu luchador",
-    description: "Nunca te rindes cuando importa"
+    description: "Nunca te rindes cuando importa",
+    gradient: "from-rose-200 via-rose-300 to-red-300"
   },
   {
     id: 17,
     name: "Tu empatía",
-    description: "Entiendes profundamente los sentimientos de otros"
+    description: "Entiendes profundamente los sentimientos de otros",
+    gradient: "from-pink-200 via-pink-300 to-rose-300"
   },
   {
     id: 18,
     name: "Tu ingenio",
-    description: "Encuentras soluciones creativas a problemas"
+    description: "Encuentras soluciones creativas a problemas",
+    gradient: "from-amber-200 via-amber-300 to-orange-300"
   },
   {
     id: 19,
     name: "Tu capacidad para innovar",
-    description: "Traes ideas frescas a desafíos antiguos"
+    description: "Traes ideas frescas a desafíos antiguos",
+    gradient: "from-fuchsia-200 via-fuchsia-300 to-purple-300"
   },
   {
     id: 20,
     name: "Tu mente abierta",
-    description: "Bienvenidas nuevas perspectivas e ideas"
+    description: "Bienvenidas nuevas perspectivas e ideas",
+    gradient: "from-sky-200 via-sky-300 to-cyan-300"
   },
   {
     id: 21,
     name: "Tu lealtad",
-    description: "Apoyas a quienes te importan"
+    description: "Apoyas a quienes te importan",
+    gradient: "from-indigo-200 via-indigo-300 to-blue-300"
   },
   {
     id: 22,
     name: "Tu orientación al equipo",
-    description: "Trabajas bien con otros hacia objetivos compartidos"
+    description: "Trabajas bien con otros hacia objetivos compartidos",
+    gradient: "from-cyan-200 via-cyan-300 to-teal-300"
   },
   {
     id: 23,
     name: "Tu sabiduría",
-    description: "Tomas decisiones reflexivas con perspicacia"
+    description: "Tomas decisiones reflexivas con perspicacia",
+    gradient: "from-purple-200 via-purple-300 to-indigo-300"
   },
   {
     id: 24,
     name: "Tu productividad",
-    description: "Realizas trabajo significativo consistentemente"
+    description: "Realizas trabajo significativo consistentemente",
+    gradient: "from-lime-200 via-green-300 to-emerald-300"
   }
 ];
