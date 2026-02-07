@@ -68,38 +68,42 @@ const HomeScreen = ({ userProfile, currentUser, squads, onLogout }) => {
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="card bg-gradient-to-br from-brand-400 to-brand-600 text-white border-none">
-            <div className="flex items-center gap-3">
-              <Trophy className="w-10 h-10" />
-              <div>
-                <div className="text-3xl font-bold">{squadHistory.length}</div>
-                <div className="text-sm opacity-90">Squads Participados</div>
+        {/* Stats Cards - Solo si está en un squad */}
+        {currentSquad && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="card bg-gradient-to-br from-brand-400 to-brand-600 text-white border-none">
+              <div className="flex items-center gap-3">
+                <Users className="w-10 h-10" />
+                <div>
+                  <div className="text-3xl font-bold">{currentSquad.members?.length || 0}</div>
+                  <div className="text-sm opacity-90">Miembros del Squad</div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="card bg-gradient-to-br from-success to-success-dark text-white border-none">
-            <div className="flex items-center gap-3">
-              <TrendingUp className="w-10 h-10" />
-              <div>
-                <div className="text-3xl font-bold">100%</div>
-                <div className="text-sm opacity-90">Compromiso</div>
+            <div className="card bg-gradient-to-br from-success to-success-dark text-white border-none">
+              <div className="flex items-center gap-3">
+                <Trophy className="w-10 h-10" />
+                <div>
+                  <div className="text-3xl font-bold">{userProfile?.karmaPoints || 0}</div>
+                  <div className="text-sm opacity-90">Tus Karma Points</div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="card bg-gradient-to-br from-info to-brand-500 text-white border-none">
-            <div className="flex items-center gap-3">
-              <Clock className="w-10 h-10" />
-              <div>
-                <div className="text-3xl font-bold">En Vivo</div>
-                <div className="text-sm opacity-90">Estado</div>
+            <div className="card bg-gradient-to-br from-info to-brand-500 text-white border-none">
+              <div className="flex items-center gap-3">
+                <Star className="w-10 h-10" />
+                <div>
+                  <div className="text-3xl font-bold">
+                    {currentSquad.votes ? Object.keys(currentSquad.votes).length : 0}
+                  </div>
+                  <div className="text-sm opacity-90">Votos Emitidos</div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Main Actions - Vista Dinámica */}
         {currentUser?.squadCode ? (

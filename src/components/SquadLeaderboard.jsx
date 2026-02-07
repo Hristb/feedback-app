@@ -7,10 +7,10 @@ const SquadLeaderboard = ({ squadStats, currentUserId }) => {
     <div className="card">
       <div className="flex items-center gap-2 mb-6">
         <Trophy className="w-6 h-6 text-brand-500" />
-        <h2 className="text-2xl font-bold text-neutral-800">Leaderboard del Squad</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-neutral-800">Ranking del Squad</h2>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3">
         {squadStats.map((member, index) => {
           const isCurrentUser = member.id === currentUserId;
           const level = calculateLevel(member.karmaPoints);
@@ -23,9 +23,9 @@ const SquadLeaderboard = ({ squadStats, currentUserId }) => {
           return (
             <div
               key={member.id}
-              className={`relative overflow-hidden rounded-2xl transition-all ${
+              className={`relative overflow-hidden rounded-xl sm:rounded-2xl transition-all ${
                 isCurrentUser 
-                  ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-xl scale-105' 
+                  ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-xl scale-[1.02]' 
                   : isTop3
                   ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200'
                   : 'bg-white border border-neutral-200'
@@ -39,9 +39,9 @@ const SquadLeaderboard = ({ squadStats, currentUserId }) => {
                 </div>
               )}
 
-              <div className="relative p-4 flex items-center gap-4">
+              <div className="relative p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
                 {/* Posición */}
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 ${
                   isCurrentUser 
                     ? 'bg-white/20' 
                     : isTop3 
@@ -49,42 +49,43 @@ const SquadLeaderboard = ({ squadStats, currentUserId }) => {
                     : 'bg-neutral-100'
                 }`}>
                   {isTop3 && PositionIcon ? (
-                    <PositionIcon className={`w-6 h-6 ${isCurrentUser ? 'text-white' : positionColor}`} />
+                    <PositionIcon className={`w-5 h-5 sm:w-6 sm:h-6 ${isCurrentUser ? 'text-white' : positionColor}`} />
                   ) : (
-                    <span className={`text-xl font-bold ${isCurrentUser ? 'text-white' : 'text-neutral-600'}`}>
+                    <span className={`text-lg sm:text-xl font-bold ${isCurrentUser ? 'text-white' : 'text-neutral-600'}`}>
                       {index + 1}
                     </span>
                   )}
                 </div>
 
                 {/* Avatar y nombre */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className={`font-bold text-lg ${isCurrentUser ? 'text-white' : 'text-neutral-800'}`}>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h3 className={`font-bold text-base sm:text-lg ${isCurrentUser ? 'text-white' : 'text-neutral-800'} truncate`}>
                       {member.name}
                     </h3>
                     {isCurrentUser && (
-                      <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">Tú</span>
+                      <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full shrink-0">Tú</span>
                     )}
                     {member.isMostVoted && (
-                      <span className="text-xs bg-purple-500 text-white px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <span className="text-xs bg-purple-500 text-white px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0">
                         <Crown className="w-3 h-3" />
-                        Más votado
+                        <span className="hidden sm:inline">Más votado</span>
+                        <span className="sm:hidden">Top</span>
                       </span>
                     )}
                   </div>
                   
-                  <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm flex-wrap">
                     <div className="flex items-center gap-1">
-                      <TrendingUp className={`w-4 h-4 ${isCurrentUser ? 'text-white/70' : 'text-brand-500'}`} />
+                      <TrendingUp className={`w-3 h-3 sm:w-4 sm:h-4 ${isCurrentUser ? 'text-white/70' : 'text-brand-500'}`} />
                       <span className={isCurrentUser ? 'text-white/90' : 'text-neutral-600'}>
-                        {member.recognitionsGiven} dados
+                        {member.recognitionsGiven}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Award className={`w-4 h-4 ${isCurrentUser ? 'text-white/70' : 'text-purple-500'}`} />
+                      <Award className={`w-3 h-3 sm:w-4 sm:h-4 ${isCurrentUser ? 'text-white/70' : 'text-purple-500'}`} />
                       <span className={isCurrentUser ? 'text-white/90' : 'text-neutral-600'}>
-                        {member.recognitionsReceived} recibidos
+                        {member.recognitionsReceived}
                       </span>
                     </div>
                   </div>
@@ -92,18 +93,18 @@ const SquadLeaderboard = ({ squadStats, currentUserId }) => {
 
                 {/* Karma Points */}
                 <div className="text-right shrink-0">
-                  <div className={`text-2xl font-bold ${isCurrentUser ? 'text-white' : 'text-brand-600'}`}>
+                  <div className={`text-xl sm:text-2xl font-bold ${isCurrentUser ? 'text-white' : 'text-brand-600'}`}>
                     {member.karmaPoints}
                   </div>
-                  <div className={`text-xs ${isCurrentUser ? 'text-white/70' : 'text-neutral-500'}`}>
+                  <div className={`text-[10px] sm:text-xs ${isCurrentUser ? 'text-white/70' : 'text-neutral-500'}`}>
                     pts
                   </div>
-                  <div className={`text-xs mt-1 px-2 py-0.5 rounded-full inline-block ${
+                  <div className={`text-[10px] sm:text-xs mt-1 px-1.5 sm:px-2 py-0.5 rounded-full inline-block ${
                     isCurrentUser 
                       ? 'bg-white/20 text-white' 
                       : `bg-gradient-to-r ${level.color} text-white`
                   }`}>
-                    {level.emoji} {level.name}
+                    {level.emoji} <span className="hidden sm:inline">{level.name}</span>
                   </div>
                 </div>
               </div>
@@ -113,29 +114,29 @@ const SquadLeaderboard = ({ squadStats, currentUserId }) => {
       </div>
 
       {/* Estadísticas del squad */}
-      <div className="mt-6 pt-6 border-t border-neutral-200">
+      <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-neutral-200">
         <h3 className="text-sm font-bold text-neutral-700 mb-3">Estadísticas del Squad</h3>
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-3 border border-blue-200">
-            <div className="text-2xl mb-1">📊</div>
-            <div className="text-xs text-neutral-600">Participación</div>
-            <div className="text-lg font-bold text-blue-900">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-2 sm:p-3 border border-blue-200">
+            <div className="text-xl sm:text-2xl mb-1">📊</div>
+            <div className="text-[10px] sm:text-xs text-neutral-600">Participación</div>
+            <div className="text-base sm:text-lg font-bold text-blue-900">
               {Math.round((squadStats.filter(m => m.recognitionsGiven > 0).length / squadStats.length) * 100)}%
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-3 border border-purple-200">
-            <div className="text-2xl mb-1">⭐</div>
-            <div className="text-xs text-neutral-600">Total Kudos</div>
-            <div className="text-lg font-bold text-purple-900">
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-2 sm:p-3 border border-purple-200">
+            <div className="text-xl sm:text-2xl mb-1">⭐</div>
+            <div className="text-[10px] sm:text-xs text-neutral-600">Total Kudos</div>
+            <div className="text-base sm:text-lg font-bold text-purple-900">
               {squadStats.reduce((sum, m) => sum + m.recognitionsGiven, 0)}
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 border border-amber-200">
-            <div className="text-2xl mb-1">🏆</div>
-            <div className="text-xs text-neutral-600">Karma Total</div>
-            <div className="text-lg font-bold text-amber-900">
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-2 sm:p-3 border border-amber-200">
+            <div className="text-xl sm:text-2xl mb-1">🏆</div>
+            <div className="text-[10px] sm:text-xs text-neutral-600">Karma Total</div>
+            <div className="text-base sm:text-lg font-bold text-amber-900">
               {squadStats.reduce((sum, m) => sum + m.karmaPoints, 0)}
             </div>
           </div>

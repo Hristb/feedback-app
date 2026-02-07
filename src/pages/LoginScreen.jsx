@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth, googleProvider, db } from '../firebase';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { Mail, Lock, User, Chrome, LogIn, UserPlus, Sparkles, Eye, EyeOff, Check } from 'lucide-react';
+import { db } from '../firebase';
+import { doc, setDoc, getDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
+import { Mail, Lock, User, LogIn, UserPlus, Sparkles, Eye, EyeOff, Check } from 'lucide-react';
 
 const LoginScreen = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -58,35 +57,15 @@ const LoginScreen = ({ onLogin }) => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      const result = await signInWithPopup(auth, googleProvider);
-      
-      // Guardar usuario en Firestore
-      const userProfile = await saveUserToFirestore(result.user.uid, {
-        email: result.user.email,
-        displayName: result.user.displayName,
-        photoURL: result.user.photoURL,
-        authProvider: 'google'
-      });
-      
-      localStorage.setItem('userProfile', JSON.stringify(userProfile));
-      onLogin(userProfile);
-      navigate('/home');
-    } catch (error) {
-      console.error('Error signing in with Google:', error);
-      if (error.code === 'auth/popup-closed-by-user') {
-        setError('❌ Inicio de sesión cancelado');
-      } else if (error.code === 'auth/unauthorized-domain') {
-        setError('❌ Dominio no autorizado. Configura tu dominio en Firebase Console');
-      } else {
-        setError('❌ Error al iniciar sesión con Google');
-      }
-    } finally {
-      setLoading(false);
+  // Hash simple (NO usar en producción real, solo para demo)
+  const simpleHash = (str) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
     }
+    return hash.toString();
   };
 
   const handleEmailSignIn = async (e) => {
@@ -94,27 +73,50 @@ const LoginScreen = ({ onLogin }) => {
     try {
       setLoading(true);
       setError('');
-      const result = await signInWithEmailAndPassword(auth, email, password);
       
-      // Cargar perfil desde Firestore
-      const userProfile = await saveUserToFirestore(result.user.uid, {
-        email: result.user.email,
-        displayName: result.user.displayName || email.split('@')[0],
+      // Buscar usuario por email
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', email.toLowerCase()));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        setError('❌ Usuario no encontrado');
+        setLoading(false);
+        return;
+      }
+      
+      const userDoc = querySnapshot.docs[0];
+      const userData = userDoc.data();
+      
+      // Verificar contraseña
+      if (userData.password !== simpleHash(password)) {
+        setError('❌ Contraseña incorrecta');
+        setLoading(false);
+        return;
+      }
+      
+      // Actualizar último login
+      await setDoc(doc(db, 'users', userDoc.id), {
+        lastLogin: serverTimestamp()
+      }, { merge: true });
+      
+      const userProfile = {
+        uid: userDoc.id,
+        email: userData.email,
+        displayName: userData.displayName,
+        karmaPoints: userData.karmaPoints || 0,
+        level: userData.level || 'Bronze',
+        achievements: userData.achievements || [],
+        stats: userData.stats || {},
         authProvider: 'email'
-      });
+      };
       
       localStorage.setItem('userProfile', JSON.stringify(userProfile));
       onLogin(userProfile);
       navigate('/home');
     } catch (error) {
       console.error('Error signing in:', error);
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        setError('❌ Email o contraseña incorrectos');
-      } else if (error.code === 'auth/invalid-credential') {
-        setError('❌ Credenciales inválidas');
-      } else {
-        setError('❌ Error al iniciar sesión');
-      }
+      setError('❌ Error al iniciar sesión: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -142,31 +144,58 @@ const LoginScreen = ({ onLogin }) => {
     try {
       setLoading(true);
       setError('');
-      const result = await createUserWithEmailAndPassword(auth, email, password);
       
-      // Crear perfil en Firestore
-      const userProfile = await saveUserToFirestore(result.user.uid, {
-        email: result.user.email,
+      // Verificar si el email ya existe
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', email.toLowerCase()));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        setError('❌ Este email ya está registrado. Intenta iniciar sesión.');
+        setLoading(false);
+        return;
+      }
+      
+      // Crear nuevo usuario
+      const userId = 'user_' + Date.now();
+      const newUserData = {
+        email: email.toLowerCase(),
+        password: simpleHash(password), // Hash simple
         displayName: displayName || email.split('@')[0],
+        karmaPoints: 0,
+        level: 'Bronze',
+        achievements: [],
+        stats: {
+          recognitionsGiven: 0,
+          recognitionsReceived: 0,
+          currentStreak: 0,
+          bestStreak: 0,
+          mostVotedCount: 0
+        },
+        authProvider: 'email',
+        createdAt: serverTimestamp(),
+        lastLogin: serverTimestamp()
+      };
+      
+      await setDoc(doc(db, 'users', userId), newUserData);
+      
+      const userProfile = {
+        uid: userId,
+        email: newUserData.email,
+        displayName: newUserData.displayName,
+        karmaPoints: 0,
+        level: 'Bronze',
+        achievements: [],
+        stats: newUserData.stats,
         authProvider: 'email'
-      });
+      };
       
       localStorage.setItem('userProfile', JSON.stringify(userProfile));
       onLogin(userProfile);
       navigate('/home');
     } catch (error) {
       console.error('Error registering:', error);
-      if (error.code === 'auth/email-already-in-use') {
-        setError('❌ Este email ya está registrado. Intenta iniciar sesión.');
-      } else if (error.code === 'auth/weak-password') {
-        setError('❌ La contraseña debe tener al menos 6 caracteres');
-      } else if (error.code === 'auth/invalid-email') {
-        setError('❌ El formato del email no es válido');
-      } else if (error.code === 'auth/operation-not-allowed') {
-        setError('❌ El registro con email está deshabilitado. Contacta al administrador.');
-      } else {
-        setError(`❌ Error al crear la cuenta: ${error.message}`);
-      }
+      setError(`❌ Error al crear la cuenta: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -208,22 +237,6 @@ const LoginScreen = ({ onLogin }) => {
 
         {/* Main Card */}
         <div className="card shadow-2xl">
-          {/* Google Sign In Button */}
-          <button
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-neutral-200 rounded-xl font-semibold text-neutral-700 hover:bg-neutral-50 hover:border-brand-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-6"
-          >
-            <Chrome className="w-5 h-5" />
-            Continuar con Google
-          </button>
-
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 h-px bg-neutral-200" />
-            <span className="text-sm text-neutral-500">o</span>
-            <div className="flex-1 h-px bg-neutral-200" />
-          </div>
-
           {/* Mode Tabs */}
           <div className="flex gap-2 mb-6">
             <button

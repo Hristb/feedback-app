@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { doc, setDoc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
-import { db, auth } from './firebase';
+import { db } from './firebase';
 import LandingPage from './pages/LandingPage';
 import LoginScreen from './pages/LoginScreen';
 import HomeScreen from './pages/HomeScreen';
@@ -34,98 +33,9 @@ function App() {
   });
   const [loading, setLoading] = useState(true);
 
-  // Escuchar cambios de autenticación de Firebase
+  // Cargar datos iniciales
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // Cargar perfil completo del usuario desde Firestore
-        try {
-          const userRef = doc(db, 'users', user.uid);
-          const userSnap = await getDoc(userRef);
-          
-          if (userSnap.exists()) {
-            // Usuario existe en Firestore, cargar todos sus datos
-            const userData = userSnap.data();
-            const profile = {
-              uid: user.uid,
-              email: user.email,
-              displayName: user.displayName || userData.displayName || user.email?.split('@')[0],
-              photoURL: user.photoURL || userData.photoURL,
-              authProvider: userData.authProvider || 'firebase',
-              karmaPoints: userData.karmaPoints || 0,
-              level: userData.level || 'Bronze',
-              achievements: userData.achievements || [],
-              stats: userData.stats || {
-                recognitionsGiven: 0,
-                recognitionsReceived: 0,
-                currentStreak: 0,
-                bestStreak: 0,
-                mostVotedCount: 0
-              }
-            };
-            
-            setUserProfile(profile);
-            localStorage.setItem('userProfile', JSON.stringify(profile));
-            
-            // Actualizar lastLogin
-            await updateDoc(userRef, {
-              lastLogin: new Date()
-            });
-          } else {
-            // Usuario no existe en Firestore, crear perfil básico
-            const newUserData = {
-              email: user.email,
-              displayName: user.displayName || user.email?.split('@')[0],
-              photoURL: user.photoURL,
-              authProvider: user.providerData[0]?.providerId || 'firebase',
-              karmaPoints: 0,
-              level: 'Bronze',
-              achievements: [],
-              stats: {
-                recognitionsGiven: 0,
-                recognitionsReceived: 0,
-                currentStreak: 0,
-                bestStreak: 0,
-                mostVotedCount: 0
-              },
-              createdAt: new Date(),
-              lastLogin: new Date()
-            };
-            
-            await setDoc(userRef, newUserData);
-            
-            const profile = { uid: user.uid, ...newUserData };
-            setUserProfile(profile);
-            localStorage.setItem('userProfile', JSON.stringify(profile));
-          }
-        } catch (error) {
-          console.error('Error loading user from Firestore:', error);
-          // Fallback: crear perfil básico sin Firestore
-          const profile = {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName || user.email?.split('@')[0],
-            photoURL: user.photoURL,
-            authProvider: 'firebase',
-            karmaPoints: 0,
-            level: 'Bronze',
-            achievements: [],
-            stats: {
-              recognitionsGiven: 0,
-              recognitionsReceived: 0,
-              currentStreak: 0,
-              bestStreak: 0,
-              mostVotedCount: 0
-            }
-          };
-          setUserProfile(profile);
-          localStorage.setItem('userProfile', JSON.stringify(profile));
-        }
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    setLoading(false);
   }, []);
 
   // Sync current squad from Firestore in real-time
