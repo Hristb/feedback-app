@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, LogIn, Trophy, TrendingUp, Zap, Star, Award, Target, Calendar, ArrowRight, Clock, Sparkles, LogOut, Copy, Check } from 'lucide-react';
+import BottomNav from '../components/BottomNav';
 
 const HomeScreen = ({ userProfile, currentUser, squads, onLogout }) => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const HomeScreen = ({ userProfile, currentUser, squads, onLogout }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-neutral-50 to-brand-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-neutral-50 to-brand-100 p-6 pb-24 md:pb-6">
       <div className="max-w-4xl mx-auto">
         {/* Header con Logout */}
         <div className="flex justify-between items-center mb-6 pt-4">
@@ -301,6 +302,7 @@ const HomeScreen = ({ userProfile, currentUser, squads, onLogout }) => {
           </p>
         </div>
       </div>
+      <BottomNav />
     </div>
   );
 };

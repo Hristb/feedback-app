@@ -14,14 +14,14 @@ const UserProfileCard = ({ userStats }) => {
   return (
     <div className="card bg-gradient-to-br from-white to-brand-50">
       {/* Header con nivel */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${level.color} flex items-center justify-center text-4xl shadow-lg`}>
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
+        <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br ${level.color} flex items-center justify-center text-3xl sm:text-4xl shadow-lg`}>
           {level.emoji}
         </div>
-        <div className="flex-1">
-          <h2 className="text-2xl font-bold text-neutral-800">{userStats.displayName}</h2>
-          <p className="text-sm text-neutral-600">Nivel {LEVELS.indexOf(level) + 1} - {level.title}</p>
-          <div className="flex items-center gap-2 mt-1">
+        <div className="flex-1 text-center sm:text-left">
+          <h2 className="text-xl sm:text-2xl font-bold text-neutral-800">{userStats.displayName}</h2>
+          <p className="text-xs sm:text-sm text-neutral-600">Nivel {LEVELS.indexOf(level) + 1} - {level.title}</p>
+          <div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
             <Trophy className="w-4 h-4 text-brand-500" />
             <span className="font-bold text-brand-600">{userStats.totalKarmaPoints || 0} pts</span>
           </div>
@@ -48,43 +48,43 @@ const UserProfileCard = ({ userStats }) => {
       )}
 
       {/* Estadísticas */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="bg-white rounded-xl p-4 border border-neutral-200">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-4 h-4 text-brand-500" />
-            <span className="text-xs text-neutral-600">Dados</span>
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-6">
+        <div className="bg-white rounded-xl p-3 sm:p-4 border border-neutral-200">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-500" />
+            <span className="text-[10px] sm:text-xs text-neutral-600">Dados</span>
           </div>
-          <div className="text-2xl font-bold text-neutral-800">
+          <div className="text-xl sm:text-2xl font-bold text-neutral-800">
             {userStats.recognitionsGiven || 0}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-neutral-200">
-          <div className="flex items-center gap-2 mb-1">
-            <Star className="w-4 h-4 text-amber-500" />
-            <span className="text-xs text-neutral-600">Recibidos</span>
+        <div className="bg-white rounded-xl p-3 sm:p-4 border border-neutral-200">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+            <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
+            <span className="text-[10px] sm:text-xs text-neutral-600">Recibidos</span>
           </div>
-          <div className="text-2xl font-bold text-neutral-800">
+          <div className="text-xl sm:text-2xl font-bold text-neutral-800">
             {userStats.recognitionsReceived || 0}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-neutral-200">
-          <div className="flex items-center gap-2 mb-1">
-            <Zap className="w-4 h-4 text-orange-500" />
-            <span className="text-xs text-neutral-600">Racha</span>
+        <div className="bg-white rounded-xl p-3 sm:p-4 border border-neutral-200">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+            <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500" />
+            <span className="text-[10px] sm:text-xs text-neutral-600">Racha</span>
           </div>
-          <div className="text-2xl font-bold text-neutral-800">
+          <div className="text-xl sm:text-2xl font-bold text-neutral-800">
             {userStats.currentStreak || 0} días
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-neutral-200">
-          <div className="flex items-center gap-2 mb-1">
-            <Trophy className="w-4 h-4 text-purple-500" />
-            <span className="text-xs text-neutral-600">Más votado</span>
+        <div className="bg-white rounded-xl p-3 sm:p-4 border border-neutral-200">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+            <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-500" />
+            <span className="text-[10px] sm:text-xs text-neutral-600">Más votado</span>
           </div>
-          <div className="text-2xl font-bold text-neutral-800">
+          <div className="text-xl sm:text-2xl font-bold text-neutral-800">
             {userStats.timesMostVoted || 0}x
           </div>
         </div>
@@ -104,24 +104,24 @@ const UserProfileCard = ({ userStats }) => {
       {/* Achievements desbloqueados */}
       {unlockedAchievements.length > 0 && (
         <div>
-          <h3 className="text-sm font-bold text-neutral-700 mb-3 flex items-center gap-2">
-            <Target className="w-4 h-4" />
+          <h3 className="text-xs sm:text-sm font-bold text-neutral-700 mb-3 flex items-center gap-2">
+            <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Logros Desbloqueados ({unlockedAchievements.length})
           </h3>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {unlockedAchievements.slice(0, 6).map(achievement => (
               <div
                 key={achievement.id}
-                className="bg-gradient-to-br from-amber-100 to-amber-200 px-3 py-2 rounded-lg flex items-center gap-2 border border-amber-300"
+                className="bg-gradient-to-br from-amber-100 to-amber-200 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg flex items-center gap-1.5 sm:gap-2 border border-amber-300"
                 title={achievement.description}
               >
-                <span className="text-xl">{achievement.emoji}</span>
-                <span className="text-xs font-semibold text-amber-900">{achievement.name}</span>
+                <span className="text-base sm:text-xl">{achievement.emoji}</span>
+                <span className="text-[10px] sm:text-xs font-semibold text-amber-900">{achievement.name}</span>
               </div>
             ))}
             {unlockedAchievements.length > 6 && (
-              <div className="bg-neutral-200 px-3 py-2 rounded-lg flex items-center">
-                <span className="text-xs font-semibold text-neutral-600">
+              <div className="bg-neutral-200 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg flex items-center">
+                <span className="text-[10px] sm:text-xs font-semibold text-neutral-600">
                   +{unlockedAchievements.length - 6} más
                 </span>
               </div>

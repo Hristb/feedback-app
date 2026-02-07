@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Trophy, Heart, ArrowLeft, Sparkles } from 'lucide-react';
 import Header from '../components/Header';
 import { calculateLevel } from '../utils/karmaSystem';
+import BottomNav from '../components/BottomNav';
 
 const ResultsScreen = ({ squad, currentUser, userProfile, onLogout }) => {
   const navigate = useNavigate();
@@ -172,6 +173,7 @@ const ResultsScreen = ({ squad, currentUser, userProfile, onLogout }) => {
         </button>
       </div>
     </div>
+    <BottomNav />
     </div>
   );
 };

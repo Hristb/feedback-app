@@ -11,6 +11,8 @@ import SquadDashboard from './pages/SquadDashboard';
 import VotingScreen from './pages/VotingScreen';
 import ResultsScreen from './pages/ResultsScreen';
 import ProfileScreen from './pages/ProfileScreen';
+import LeaderboardScreen from './pages/LeaderboardScreen';
+import AchievementsScreen from './pages/AchievementsScreen';
 
 function App() {
   const [squads, setSquads] = useState({});
@@ -503,6 +505,36 @@ function App() {
               ) : (
                 <ProfileScreen 
                   currentUser={currentUser}
+                  userProfile={userProfile}
+                  onLogout={handleLogout}
+                />
+              )
+            } 
+          />
+
+          {/* Leaderboard - Ranking global */}
+          <Route 
+            path="/leaderboard" 
+            element={
+              !userProfile ? (
+                <Navigate to="/login" />
+              ) : (
+                <LeaderboardScreen 
+                  userProfile={userProfile}
+                  onLogout={handleLogout}
+                />
+              )
+            } 
+          />
+
+          {/* Achievements - Logros */}
+          <Route 
+            path="/achievements" 
+            element={
+              !userProfile ? (
+                <Navigate to="/login" />
+              ) : (
+                <AchievementsScreen 
                   userProfile={userProfile}
                   onLogout={handleLogout}
                 />

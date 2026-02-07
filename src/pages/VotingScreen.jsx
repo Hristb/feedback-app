@@ -4,6 +4,7 @@ import { animals, qualities } from '../data/content';
 import { ChevronLeft, Check, Trophy, Sparkles } from 'lucide-react';
 import Header from '../components/Header';
 import { calculateKarmaPoints } from '../utils/karmaSystem';
+import BottomNav from '../components/BottomNav';
 
 const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout }) => {
   const navigate = useNavigate();
@@ -307,6 +308,7 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
         </div>
       )}
     </div>
+    <BottomNav />
     </div>
   );
 };

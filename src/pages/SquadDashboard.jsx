@@ -36,29 +36,29 @@ const SquadDashboard = ({ squad, currentUser, userProfile, onLogout }) => {
     <div className="min-h-screen bg-gradient-to-br from-brand-50 via-neutral-50 to-brand-100">
       <Header userName={currentUser.userName} userProfile={userProfile} onLogout={onLogout} />
       
-      <div className="p-6 max-w-md mx-auto">
+      <div className="p-6 max-w-md mx-auto pb-24 md:pb-6">
         {/* Header */}
         <div className="card mb-6 bg-gradient-to-br from-brand-500 to-brand-700 text-white border-none">
-        <div className="text-center">
-          <div className="text-5xl mb-3">🦁</div>
-          <h1 className="text-2xl font-bold mb-2">{squad.name}</h1>
-          <div className="flex items-center justify-center gap-2">
-            <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full font-mono text-lg font-bold">
-              {squad.id}
+          <div className="text-center">
+            <div className="text-5xl mb-3">🦁</div>
+            <h1 className="text-2xl font-bold mb-2">{squad.name}</h1>
+            <div className="flex items-center justify-center gap-2">
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full font-mono text-lg font-bold">
+                {squad.id}
+              </div>
+              <button
+                onClick={handleCopyCode}
+                className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all"
+              >
+                {copied ? (
+                  <Check className="w-5 h-5" />
+                ) : (
+                  <Copy className="w-5 h-5" />
+                )}
+              </button>
             </div>
-            <button
-              onClick={handleCopyCode}
-              className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all"
-            >
-              {copied ? (
-                <Check className="w-5 h-5" />
-              ) : (
-                <Copy className="w-5 h-5" />
-              )}
-            </button>
           </div>
         </div>
-      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 mb-6">
@@ -176,6 +176,7 @@ const SquadDashboard = ({ squad, currentUser, userProfile, onLogout }) => {
         )}
       </div>
       </div>
+      <BottomNav />
     </div>
   );
 };
