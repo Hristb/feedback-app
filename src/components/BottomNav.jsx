@@ -22,7 +22,7 @@ const BottomNav = () => {
   };
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-red-900 via-red-800 to-red-900 border-t border-red-950 shadow-2xl z-50">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-brand-700 via-brand-600 to-brand-700 border-t border-brand-800 shadow-2xl z-50">
       <div className="flex items-center justify-around h-16 px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -35,7 +35,7 @@ const BottomNav = () => {
               className={`flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 active 
                   ? 'text-white scale-110' 
-                  : 'text-red-200/70 hover:text-white hover:scale-105'
+                  : 'text-brand-200/70 hover:text-white hover:scale-105'
               }`}
             >
               <Icon className={`w-6 h-6 ${active ? 'drop-shadow-lg' : ''}`} />

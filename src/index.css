@@ -10,35 +10,35 @@
 
 @layer components {
   .card {
-    @apply bg-white rounded-3xl shadow-lg p-6 border border-neutral-200 hover:border-brand-200 transition-colors;
+    @apply bg-white rounded-3xl shadow-lg p-6 border-2 border-neutral-100 hover:border-brand-300 hover:shadow-xl transition-all;
   }
   
   .btn-primary {
-    @apply bg-gradient-to-r from-brand-500 to-brand-600 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] hover:from-brand-600 hover:to-brand-700;
+    @apply bg-gradient-to-r from-brand-500 to-brand-700 text-white font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:from-brand-600 hover:to-brand-800 border-2 border-brand-600;
   }
   
   .btn-secondary {
-    @apply bg-white text-neutral-700 font-semibold py-4 px-8 rounded-xl border-2 border-brand-300 hover:bg-brand-50 hover:border-brand-400 transition-all duration-300;
+    @apply bg-white text-brand-700 font-bold py-4 px-8 rounded-2xl border-2 border-brand-400 hover:bg-brand-50 hover:border-brand-500 hover:shadow-lg transition-all duration-300;
   }
   
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 focus:outline-none bg-white transition-all;
+    @apply w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-brand-500 focus:ring-4 focus:ring-brand-200/50 focus:outline-none bg-white transition-all;
   }
   
   .badge-success {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success-light text-success-dark;
+    @apply inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-success-light text-success-dark border border-success/20;
   }
   
   .badge-warning {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-warning-light text-warning-dark;
+    @apply inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-warning-light text-warning-dark border border-warning/20;
   }
   
   .badge-error {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-error-light text-error-dark;
+    @apply inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-error-light text-error-dark border border-error/20;
   }
   
   .badge-info {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-info-light text-info-dark;
+    @apply inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-info-light text-info-dark border border-info/20;
   }
 }
 

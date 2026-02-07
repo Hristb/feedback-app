@@ -8,8 +8,11 @@ import BottomNav from '../components/BottomNav';
 
 const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout }) => {
   const navigate = useNavigate();
+  const MAX_VOTES = 3;
   const [step, setStep] = useState(1);
-  const [selectedMember, setSelectedMember] = useState(null);
+  const [selectedMembers, setSelectedMembers] = useState([]); // Array para hasta 3 miembros
+  const [currentVoteIndex, setCurrentVoteIndex] = useState(0);
+  const [votes, setVotes] = useState([]); // Array de votos completos
   const [selectedAnimal, setSelectedAnimal] = useState(null);
   const [selectedQuality, setSelectedQuality] = useState(null);
   const [reason, setReason] = useState('');
@@ -24,34 +27,60 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
   );
 
   const handleSubmit = () => {
-    // Calcular karma points ganados
-    const metadata = {
-      reasonLength: reason.length,
-      isEarlyBird: false, // Se puede mejorar calculando si es de los primeros en votar
-      hasDetailedReason: reason.length >= 50
-    };
-    
-    const pointsEarned = calculateKarmaPoints('GIVE_RECOGNITION', metadata);
-    setKarmaEarned(pointsEarned);
-    
-    const vote = {
-      voterId: currentUser.userId,
-      voterName: currentUser.userName,
-      selectedMemberId: selectedMember.id,
-      selectedMemberName: selectedMember.name,
+    // Crear el voto actual
+    const currentVote = {
+      memberId: selectedMembers[currentVoteIndex].id,
+      memberName: selectedMembers[currentVoteIndex].name,
       animal: selectedAnimal,
       quality: selectedQuality,
-      reason: reason,
-      timestamp: Date.now(),
-      karmaEarned: pointsEarned
+      reason: reason
     };
-
-    onSubmitVote(squad.id, vote);
+    
+    const allVotes = [...votes, currentVote];
+    
+    // Si hay más miembros por votar, ir al siguiente
+    if (currentVoteIndex < selectedMembers.length - 1) {
+      setVotes(allVotes);
+      setCurrentVoteIndex(currentVoteIndex + 1);
+      setSelectedAnimal(null);
+      setSelectedQuality(null);
+      setReason('');
+      setStep(2); // Volver a seleccionar animal para el siguiente miembro
+      return;
+    }
+    
+    // Si ya votamos por todos, calcular karma y enviar
+    const metadata = {
+      reasonLength: reason.length,
+      isEarlyBird: false,
+      hasDetailedReason: reason.length >= 50,
+      multipleRecognitions: allVotes.length // Bonus por votar a varios
+    };
+    
+    const pointsEarned = calculateKarmaPoints('GIVE_RECOGNITION', metadata) * allVotes.length;
+    setKarmaEarned(pointsEarned);
+    
+    // Enviar todos los votos
+    allVotes.forEach(vote => {
+      const fullVote = {
+        voterId: currentUser.userId,
+        voterName: currentUser.userName,
+        selectedMemberId: vote.memberId,
+        selectedMemberName: vote.memberName,
+        animal: vote.animal,
+        quality: vote.quality,
+        reason: vote.reason,
+        timestamp: Date.now(),
+        karmaEarned: pointsEarned / allVotes.length
+      };
+      onSubmitVote(squad.id, fullVote);
+    });
+    
     setShowConfirmation(true);
     
     setTimeout(() => {
       navigate('/dashboard');
-    }, 2000);
+    }, 2500);
   };
 
   if (showConfirmation) {
@@ -112,7 +141,7 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
         <div className="w-10" />
       </div>
 
-      {/* Step 1: Select Member */}
+      {/* Step 1: Select Members (hasta 3) */}
       {step === 1 && (
         <div>
           <div className="text-center mb-6">
@@ -121,37 +150,77 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
               ¿A quién reconoces?
             </h2>
             <p className="text-neutral-600">
-              Selecciona un miembro de tu equipo
+              Selecciona hasta {MAX_VOTES} miembros de tu equipo
             </p>
+            <div className="mt-3 flex items-center justify-center gap-2">
+              {[...Array(MAX_VOTES)].map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-3 h-3 rounded-full transition-all ${
+                    i < selectedMembers.length
+                      ? 'bg-brand-500 scale-125'
+                      : 'bg-neutral-300'
+                  }`}
+                />
+              ))}
+            </div>
           </div>
 
           <div className="space-y-3">
-            {availableMembers.map((member) => (
-              <button
-                key={member.id}
-                onClick={() => {
-                  setSelectedMember(member);
-                  setStep(2);
-                }}
-                className={`card w-full hover:shadow-xl transition-all hover:scale-105 cursor-pointer ${
-                  selectedMember?.id === member.id
-                    ? 'border-purple-500 bg-purple-50'
-                    : ''
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
-                    {member.name.charAt(0).toUpperCase()}
+            {availableMembers.map((member) => {
+              const isSelected = selectedMembers.some(m => m.id === member.id);
+              const selectionNumber = selectedMembers.findIndex(m => m.id === member.id) + 1;
+              
+              return (
+                <button
+                  key={member.id}
+                  onClick={() => {
+                    if (isSelected) {
+                      setSelectedMembers(selectedMembers.filter(m => m.id !== member.id));
+                    } else if (selectedMembers.length < MAX_VOTES) {
+                      setSelectedMembers([...selectedMembers, member]);
+                    }
+                  }}
+                  className={`card w-full hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer relative ${
+                    isSelected
+                      ? 'border-2 border-brand-500 bg-brand-50 shadow-lg'
+                      : 'border-2 border-transparent'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold relative">
+                      {member.name.charAt(0).toUpperCase()}
+                      {isSelected && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">
+                          {selectionNumber}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h3 className="text-xl font-bold text-neutral-800">
+                        {member.name}
+                      </h3>
+                    </div>
+                    {isSelected && (
+                      <div className="w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center">
+                        <Check className="w-5 h-5 text-white" />
+                      </div>
+                    )}
                   </div>
-                  <div className="flex-1 text-left">
-                    <h3 className="text-xl font-bold text-neutral-800">
-                      {member.name}
-                    </h3>
-                  </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
+          
+          {selectedMembers.length > 0 && (
+            <button
+              onClick={() => setStep(2)}
+              className="btn-primary w-full mt-6 flex items-center justify-center gap-2"
+            >
+              Continuar con {selectedMembers.length} {selectedMembers.length === 1 ? 'persona' : 'personas'}
+              <Check className="w-5 h-5" />
+            </button>
+          )}
         </div>
       )}
 
@@ -161,10 +230,10 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
           <div className="text-center mb-6">
             <div className="text-5xl mb-3">🦁</div>
             <h2 className="text-2xl font-bold text-neutral-800 mb-2">
-              ¿Qué animal representa a {selectedMember?.name}?
+              ¿Qué animal representa a {selectedMembers[currentVoteIndex]?.name}?
             </h2>
             <p className="text-neutral-600">
-              Elige el que mejor lo/la describe
+              Votando {currentVoteIndex + 1} de {selectedMembers.length}
             </p>
           </div>
 
@@ -212,10 +281,10 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
           <div className="text-center mb-6">
             <div className="text-5xl mb-3">⭐</div>
             <h2 className="text-2xl font-bold text-neutral-800 mb-2">
-              ¿Qué cualidad destaca en {selectedMember?.name}?
+              ¿Qué cualidad destaca en {selectedMembers[currentVoteIndex]?.name}?
             </h2>
             <p className="text-neutral-600">
-              Selecciona su mejor característica
+              Votando {currentVoteIndex + 1} de {selectedMembers.length}
             </p>
           </div>
 
@@ -270,10 +339,10 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
           <div className="text-center mb-6">
             <div className="text-5xl mb-3">💭</div>
             <h2 className="text-2xl font-bold text-neutral-800 mb-2">
-              ¿Por qué elegiste a {selectedMember?.name}?
+              ¿Por qué elegiste a {selectedMembers[currentVoteIndex]?.name}?
             </h2>
             <p className="text-neutral-600">
-              Comparte tu razón (opcional)
+              Votando {currentVoteIndex + 1} de {selectedMembers.length} • Opcional
             </p>
           </div>
 
@@ -282,7 +351,7 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
             <div className="text-center mb-4">
               <div className="text-3xl mb-2">{selectedAnimal?.emoji}</div>
               <h3 className="font-bold text-neutral-800 text-lg">
-                {selectedMember?.name}
+                {selectedMembers[currentVoteIndex]?.name}
               </h3>
               <p className="text-sm text-neutral-600 mt-1">
                 {selectedQuality?.name}
@@ -303,7 +372,10 @@ const VotingScreen = ({ squad, currentUser, userProfile, onSubmitVote, onLogout 
             className="btn-primary w-full flex items-center justify-center gap-2"
           >
             <Check className="w-5 h-5" />
-            Confirmar Voto
+            {currentVoteIndex < selectedMembers.length - 1 
+              ? `Siguiente (${currentVoteIndex + 2}/${selectedMembers.length})`
+              : 'Confirmar Todos los Votos'
+            }
           </button>
         </div>
       )}
