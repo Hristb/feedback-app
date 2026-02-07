@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Users, LogIn, Sparkles, ArrowLeft } from 'lucide-react';
 
 const CreateOrJoinSquad = ({ onCreateSquad, onJoinSquad, userProfile }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [mode, setMode] = useState(null); // 'create' or 'join'
   const [squadName, setSquadName] = useState('');
   const [userName, setUserName] = useState(userProfile?.displayName || '');
   const [squadCode, setSquadCode] = useState('');
   const [error, setError] = useState('');
   const [generatedCode, setGeneratedCode] = useState('');
+
+  // Leer mode de URL params y setear automáticamente
+  useEffect(() => {
+    const urlMode = searchParams.get('mode');
+    if (urlMode === 'create' || urlMode === 'join') {
+      setMode(urlMode);
+    }
+  }, [searchParams]);
 
   const handleCreateSquad = async (e) => {
     e.preventDefault();

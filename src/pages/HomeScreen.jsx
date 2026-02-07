@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, LogIn, Trophy, TrendingUp, Zap, Star, Award, Target, Calendar, ArrowRight, Clock, Sparkles } from 'lucide-react';
+import { Users, LogIn, Trophy, TrendingUp, Zap, Star, Award, Target, Calendar, ArrowRight, Clock, Sparkles, LogOut, Copy, Check } from 'lucide-react';
 
 const HomeScreen = ({ userProfile, onLogout }) => {
   const navigate = useNavigate();
+  const [copiedCode, setCopiedCode] = useState(null);
   const [squadHistory, setSquadHistory] = useState(() => {
     // Cargar historial inicial desde localStorage
     const historyKey = userProfile?.uid ? `squadHistory_${userProfile.uid}` : 'squadHistory';
@@ -23,11 +24,37 @@ const HomeScreen = ({ userProfile, onLogout }) => {
     localStorage.removeItem('squadHistory');
   };
 
+  const copyCode = (code) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-50 via-neutral-50 to-brand-100 p-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8 pt-8">
+        {/* Header con Logout */}
+        <div className="flex justify-between items-center mb-6 pt-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold">
+              {userProfile?.displayName?.charAt(0) || '?'}
+            </div>
+            <div>
+              <div className="font-semibold text-neutral-800">{userProfile?.displayName}</div>
+              <div className="text-xs text-neutral-500">{userProfile?.email || 'Invitado'}</div>
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 text-neutral-600 hover:text-error hover:bg-error-light rounded-lg transition-all"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="hidden sm:inline">Salir</span>
+          </button>
+        </div>
+
+        {/* Title Section */}
+        <div className="text-center mb-8">
           <div className="text-6xl mb-4 animate-bounce">🦁</div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent mb-2">
             Squad Vote
@@ -73,7 +100,7 @@ const HomeScreen = ({ userProfile, onLogout }) => {
         {/* Main Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <button
-            onClick={() => navigate('/squad')}
+            onClick={() => navigate('/squad?mode=create')}
             className="card hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer group text-left"
           >
             <div className="flex items-start gap-4">
@@ -84,19 +111,15 @@ const HomeScreen = ({ userProfile, onLogout }) => {
                 <h3 className="text-xl font-bold text-neutral-800 mb-2">
                   Crear Nuevo Squad
                 </h3>
-                <p className="text-neutral-600 text-sm mb-3">
+                <p className="text-neutral-600 text-sm">
                   Inicia un nuevo equipo y comienza a reconocer fortalezas
                 </p>
-                <div className="flex items-center gap-2 text-brand-600 text-sm font-semibold">
-                  <Sparkles className="w-4 h-4" />
-                  Comenzar ahora
-                </div>
               </div>
             </div>
           </button>
 
           <button
-            onClick={() => navigate('/squad')}
+            onClick={() => navigate('/squad?mode=join')}
             className="card hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer group text-left"
           >
             <div className="flex items-start gap-4">
@@ -107,13 +130,9 @@ const HomeScreen = ({ userProfile, onLogout }) => {
                 <h3 className="text-xl font-bold text-neutral-800 mb-2">
                   Unirse a Squad
                 </h3>
-                <p className="text-neutral-600 text-sm mb-3">
+                <p className="text-neutral-600 text-sm">
                   Únete a un equipo existente con un código único
                 </p>
-                <div className="flex items-center gap-2 text-brand-600 text-sm font-semibold">
-                  <Sparkles className="w-4 h-4" />
-                  Unirse ahora
-                </div>
               </div>
             </div>
           </button>
@@ -147,9 +166,22 @@ const HomeScreen = ({ userProfile, onLogout }) => {
                         </div>
                       </div>
                     </div>
-                    <div className="text-xs font-mono text-neutral-500 bg-white px-3 py-1 rounded-full">
-                      {item.code}
-                    </div>
+                    <button
+                      onClick={() => copyCode(item.code)}
+                      className="flex items-center gap-2 text-xs font-mono bg-white hover:bg-brand-50 px-3 py-1.5 rounded-full transition-all border border-neutral-200 hover:border-brand-300"
+                    >
+                      {copiedCode === item.code ? (
+                        <>
+                          <Check className="w-3 h-3 text-success" />
+                          <span className="text-success">Copiado</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3 text-neutral-500" />
+                          <span className="text-neutral-700">{item.code}</span>
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
               ))}
@@ -159,15 +191,9 @@ const HomeScreen = ({ userProfile, onLogout }) => {
 
         {/* Info Section */}
         <div className="mt-8 text-center">
-          <p className="text-neutral-500 text-sm mb-4">
+          <p className="text-neutral-500 text-sm">
             Squad Vote te ayuda a reconocer las fortalezas únicas de cada miembro de tu equipo
           </p>
-          <button
-            onClick={handleLogout}
-            className="text-neutral-400 hover:text-brand-600 text-sm transition-colors"
-          >
-            ¿Necesitas ayuda? Contactar soporte
-          </button>
         </div>
       </div>
     </div>

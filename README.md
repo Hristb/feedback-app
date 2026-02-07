@@ -1,10 +1,13 @@
-# 🦁 Squad Vote - MVP
+# 🦁 Squad Vote
 
 Una aplicación web mobile-first para que equipos reconozcan las fortalezas de sus miembros de forma divertida y significativa.
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![React](https://img.shields.io/badge/React-18.2-61dafb)
 ![Vite](https://img.shields.io/badge/Vite-5.0-646cff)
+![Firebase](https://img.shields.io/badge/Firebase-12.9-orange)
+
+🔗 **[Ver Demo en Vivo](https://hristb.github.io/feedback-app/)**
 
 ## 🎯 ¿Qué es Squad Vote?
 
@@ -16,76 +19,106 @@ Squad Vote es una aplicación que permite a los equipos realizar votaciones para
 - ✅ Compartir la razón de su elección
 - ✅ Ver los resultados cuando todos hayan votado
 
-## 🚀 Características
+## 🚀 Características Principales
 
-- **Mobile-First**: Diseñada prioritariamente para dispositivos móviles
-- **Colores Juveniles**: Paleta de colores pasteles inspirada en Liongo (rosas, amarillos, morados, azules)
-- **Sin Base de Datos**: Usa localStorage para persistencia (MVP)
-- **Código de Squad**: Sistema simple de códigos para unir equipos
+### Autenticación Flexible
+- 🔐 **Google Sign-In**: Login rápido con cuenta de Google
+- 📧 **Email/Password**: Registro tradicional con validación
+- 👤 **Modo Invitado**: Acceso sin cuenta (datos locales)
+- 👁️ **Toggle Password**: Ver/ocultar contraseña
+- ✅ **Validación Visual**: Feedback inmediato en formularios
+
+### Experiencia de Usuario Mejorada
+- **Navegación Directa**: Botones llevan directo al formulario sin pasos extra
+- **Perfil Visible**: Header con avatar y logout accesible
+- **Copiar Códigos**: Un clic para copiar código de squad con feedback
+- **HashRouter**: URLs con # para compatibilidad GitHub Pages sin 404
+- **Transiciones Suaves**: Animaciones entre vistas
+
+### Gestión de Squads
+- **Crear Squad**: Genera código único para compartir
+- **Unirse a Squad**: Ingresa código para unirte al equipo
+- **Historial**: Ve tus últimos 5 squads con códigos copiables
+- **Persistencia Dual**: localStorage + Firebase Firestore
+
+### Sistema de Votación
 - **21 Animales**: Cada uno con su significado único
 - **24 Cualidades**: Para reconocer diferentes fortalezas
 - **Resultados en Tiempo Real**: Visualiza cuando todos hayan votado
+- **Mobile-First**: Optimizado para dispositivos móviles
 
 ## 🛠️ Stack Tecnológico
 
-### Framework: **React + Vite**
+### Core
+- **React 18.2** - Framework UI con hooks
+- **Vite 5.4** - Build tool ultra rápido
+- **React Router 6.20** - Navegación con HashRouter
+- **TailwindCSS 3.3** - Utility-first CSS
 
-#### ¿Por qué esta elección?
+### Backend & Auth
+- **Firebase 12.9**
+  - 🔐 Authentication (Google, Email/Password)
+  - 🗄️ Firestore (Base de datos NoSQL)
+  - ☁️ Hosting para despliegue
+
+### UI & Icons
+- **Lucide React** - Iconos modernos y ligeros
+- **Gradientes Personalizados** - Paleta juvenil y atractiva
+
+### Deployment
+- **GitHub Pages** - Hosting estático gratuito
+- **gh-pages** - CLI para deploy automatizado
+
+### ¿Por qué esta elección?
 
 1. **Vite** 
    - ⚡ Inicio instantáneo del servidor de desarrollo
    - 🔥 Hot Module Replacement (HMR) ultra rápido
    - 📦 Build optimizado para producción
-   - 🎯 Configuración mínima para MVP
 
-2. **React**
-   - 🌍 Ecosistema maduro y amplio soporte
+2. **React + Hooks**
    - 🧩 Componentes reutilizables
    - 📱 Excelente para aplicaciones mobile-first
-   - 🔄 useState y useEffect para manejo de estado simple
+   - 🔄 Estado simple con useState/useEffect
 
-3. **TailwindCSS**
+3. **Firebase**
+   - 🚀 Backend completo sin servidor
+   - 🔐 Autenticación lista para usar
+   - 💾 Sincronización en tiempo real
+   - 🆓 Tier gratuito generoso
+
+4. **TailwindCSS**
    - 🎨 Diseño rápido con utility classes
-   - 📱 Responsive design out-of-the-box
-   - 🎭 Fácil personalización de colores y temas
+   - 📱 Responsive design integrado
    - 💨 Purge automático para bundles pequeños
 
-4. **React Router**
-   - 🧭 Navegación entre pantallas
-   - 📍 URLs limpias y manejables
-   - 🔐 Protección de rutas simple
-
-5. **Lucide React**
-   - 🎯 Iconos modernos y ligeros
-   - 🎨 Fácil personalización
-   - 📦 Tree-shaking automático
-
-### Alternativas Consideradas
-
-- **Next.js**: Demasiado complejo para un MVP sin necesidad de SSR
-- **Vue**: Menos familiaridad general del mercado
-- **Angular**: Overhead innecesario para esta escala
-- **Create React App**: Más lento que Vite
+5. **HashRouter**
+   - 🔗 Compatibilidad GitHub Pages sin configuración servidor
+   - 🚫 Elimina errores 404 en refresh
+   - ✅ URLs limpias con fragmento (#)
 
 ## 📁 Estructura del Proyecto
 
 ```
-proyecto/
+feedback-app/
 ├── src/
 │   ├── pages/
-│   │   ├── WelcomeScreen.jsx      # Pantalla de bienvenida con carousel
+│   │   ├── LoginScreen.jsx        # Autenticación (Google/Email/Guest)
+│   │   ├── HomeScreen.jsx         # Dashboard con historial y stats
 │   │   ├── CreateOrJoinSquad.jsx  # Crear o unirse a squad
 │   │   ├── SquadDashboard.jsx     # Dashboard del equipo
 │   │   ├── VotingScreen.jsx       # Proceso de votación (4 pasos)
 │   │   └── ResultsScreen.jsx      # Resultados finales
 │   ├── data/
 │   │   └── content.js             # Animales y cualidades
-│   ├── App.jsx                    # Router principal y lógica de estado
+│   ├── firebase.js                # Configuración Firebase
+│   ├── App.jsx                    # Router + Auth state
 │   ├── main.jsx                   # Entry point
 │   └── index.css                  # Estilos globales + Tailwind
+├── public/
 ├── index.html
 ├── package.json
-├── vite.config.js
+├── vite.config.js                 # Config con base path para GH Pages
 ├── tailwind.config.js
 └── postcss.config.js
 ```
@@ -99,65 +132,88 @@ Accent (Azul):    #7dd3fc → #0ea5e9
 Backgrounds:      Rosa 50, Púrpura 50, Azul 50
 ```
 
-## 📦 Instalación
+## 📦 Instalación y Desarrollo
 
 ### Prerequisitos
 - Node.js 16+ 
 - npm o yarn
+- Cuenta de Firebase (para auth y Firestore)
 
 ### Pasos
 
-1. **Instalar dependencias**
-```powershell
+1. **Clonar repositorio**
+```bash
+git clone https://github.com/Hristb/feedback-app.git
+cd feedback-app
+```
+
+2. **Instalar dependencias**
+```bash
 npm install
 ```
 
-2. **Iniciar servidor de desarrollo**
-```powershell
+3. **Configurar Firebase**
+   - Crea proyecto en [Firebase Console](https://console.firebase.google.com/)
+   - Habilita Authentication (Google, Email/Password)
+   - Crea base de datos Firestore
+   - Copia las credenciales y créalas en `src/firebase.js`
+
+4. **Iniciar servidor de desarrollo**
+```bash
 npm run dev
 ```
+   - Abre http://localhost:3000/feedback-app/
 
-3. **Acceder a la aplicación**
-```
-http://localhost:3000
-```
-
-4. **Build para producción**
-```powershell
+5. **Build para producción**
+```bash
 npm run build
 ```
 
-5. **Preview del build**
-```powershell
-npm run preview
+6. **Deploy a GitHub Pages**
+```bash
+npm run deploy
 ```
+   - Ve a Settings → Pages → Selecciona rama `gh-pages`
+   - Tu app estará en `https://<usuario>.github.io/feedback-app/`
 
 ## 🎮 Cómo Funciona
 
-### 1. **Bienvenida** (`/`)
-- Carousel explicativo de 4 slides
-- Navegación con flechas y dots
-- Botón "¡Comenzar!"
+### 1. **Login** (`/login`)
+- **Google Sign-In**: Login con cuenta de Google
+- **Email/Password**: Registro o login tradicional con validación visual
+- **Modo Invitado**: Acceso sin cuenta (solo localStorage)
+- Toggle para ver/ocultar contraseña
+- Validación de email con feedback visual
 
-### 2. **Crear o Unirse** (`/squad`)
-- **Opción A: Crear Squad**
+### 2. **Home** (`/home`)
+- Header con perfil de usuario y botón logout
+- Stats cards: Squads participados, compromiso, estado
+- Botón **"Crear Nuevo Squad"** → Va directo al formulario
+- Botón **"Unirse a Squad"** → Va directo al formulario de ingreso
+- Historial de últimos 5 squads con códigos copiables (un clic)
+
+### 3. **Crear o Unirse** (`/squad`)
+- Lee parámetro `?mode=create` o `?mode=join` de la URL
+- Muestra formulario correspondiente directamente (sin doble selección)
+
+**Crear Squad:**
   - Ingresa nombre del squad
-  - Ingresa tu nombre
+  - Usa tu nombre de perfil automáticamente
   - Recibes código único (6 caracteres)
   
-- **Opción B: Unirse a Squad**
+**Unirse a Squad:**
   - Ingresa código del squad
-  - Ingresa tu nombre
+  - Usa tu nombre de perfil automáticamente
   - Te unes al equipo
 
-### 3. **Dashboard** (`/dashboard`)
+### 4. **Dashboard** (`/dashboard`)
 - Ve el código del squad (copiable)
 - Lista de miembros
 - Estado de votación (quién ha votado)
 - Botón para votar
 - Botón para ver resultados (cuando todos votaron)
 
-### 4. **Votación** (`/vote`)
+### 5. **Votación** (`/vote`)
 **Proceso de 4 pasos:**
 
 **Paso 1:** Selecciona un compañero
@@ -176,7 +232,7 @@ npm run preview
 - Resumen visual de tu voto
 - Confirmar voto
 
-### 5. **Resultados** (`/results`)
+### 6. **Resultados** (`/results`)
 - Destaca TU reconocimiento recibido
 - Lista completa de todos los miembros
 - Muestra animal, cualidad y razón de cada voto
@@ -184,63 +240,113 @@ npm run preview
 
 ## 💾 Persistencia de Datos
 
-El MVP usa **localStorage** para mantener:
-- Todos los squads creados
-- Miembros de cada squad
-- Votos realizados
-- Usuario actual
+Implementación **dual** para máxima compatibilidad:
 
+### localStorage (Modo Invitado)
 ```javascript
-// Estructura en localStorage:
 {
-  squads: {
-    "ABC123": {
-      id: "ABC123",
-      name: "Los Increíbles",
-      members: [...],
-      votes: [...]
-    }
+  userProfile: {
+    uid: "guest_1234567890",
+    displayName: "María",
+    authProvider: "guest"
   },
-  currentUser: {
-    squadCode: "ABC123",
-    userName: "María",
-    userId: 1234567890
-  }
+  squadHistory_guest_1234567890: [...]
 }
 ```
 
+### Firebase Firestore (Usuarios autenticados)
+```javascript
+// Colección: squads
+{
+  id: "ABC123",
+  name: "Los Increíbles",
+  createdBy: "user_uid_123",
+  members: [...],
+  votes: [...]
+}
+
+// Colección: userHistory
+{
+  userId: "user_uid_123",
+  history: [
+    {
+      squadId: "ABC123",
+      squadName: "Los Increíbles",
+      role: "creator",
+      timestamp: "2026-02-06T..."
+    }
+  ]
+}
+```
+
+**Ventajas:**
+- ✅ Invitados funcionan sin servidor (offline-first)
+- ✅ Usuarios registrados sincronizan entre dispositivos
+- ✅ Historial persistente en Firebase
+- ✅ Backup automático en la nube
+
+## 🔮 Mejoras Implementadas (v1.0)
+
+### ✅ Autenticación Completa
+- [x] Google Sign-In con Firebase Auth
+- [x] Email/Password con registro y validación
+- [x] Modo Invitado para acceso sin cuenta
+- [x] Toggle ver/ocultar contraseña
+- [x] Validación visual de email con feedback
+
+### ✅ UX Mejorada
+- [x] Navegación directa sin dobles selecciones
+- [x] Header con perfil de usuario visible
+- [x] Botón logout accesible
+- [x] Copiar códigos de squad con un clic
+- [x] Feedback visual "Copiado" ✓
+- [x] Tabs compactos para mobile (<375px)
+- [x] Transiciones suaves entre vistas
+
+### ✅ Persistencia Dual
+- [x] localStorage para invitados
+- [x] Firebase Firestore para usuarios registrados
+- [x] Historial sincronizado en la nube
+- [x] Backup automático
+
+### ✅ Deployment
+- [x] HashRouter para GitHub Pages
+- [x] Build optimizado con Vite
+- [x] Deploy automatizado con gh-pages
+- [x] URLs sin errores 404 en refresh
+
 ## 🔮 Futuras Mejoras
 
-### Fase 2 (Backend)
-- [ ] API REST con Node.js/Express
-- [ ] Base de datos (MongoDB/PostgreSQL)
-- [ ] Sistema de autenticación real
-- [ ] WebSockets para actualizaciones en tiempo real
-
-### Fase 3 (Features)
-- [ ] Imágenes reales de animales (actualmente emojis)
-- [ ] Compartir resultados en redes sociales
-- [ ] Historial de votaciones
+### Fase 2 (Features)
+- [ ] Notificaciones push cuando todos voten
+- [ ] Chat en tiempo real dentro del squad
 - [ ] Múltiples rondas de votación
-- [ ] Estadísticas del equipo
-- [ ] Exportar resultados a PDF
+- [ ] Estadísticas y analytics del equipo
+- [ ] Exportar resultados a PDF/Imagen
+- [ ] Compartir resultados en redes sociales
 
-### Fase 4 (UX)
-- [ ] Animaciones más elaboradas
-- [ ] Sonidos de confirmación
+### Fase 3 (UX)
+- [ ] Imágenes reales de animales (reemplazar emojis)
+- [ ] Animaciones más elaboradas con Framer Motion
+- [ ] Sonidos de confirmación y celebración
 - [ ] Modo oscuro
-- [ ] Internacionalización (i18n)
-- [ ] Accesibilidad (a11y) mejorada
+- [ ] Internacionalización (Español/Inglés)
+- [ ] Accesibilidad (WCAG 2.1 AA)
 
-## 🐛 Limitaciones del MVP
+### Fase 4 (Backend)
+- [ ] WebSockets para actualizaciones en tiempo real
+- [ ] API REST para integraciones
+- [ ] Edición y eliminación de votos
+- [ ] Sistema de roles (admin, member)
+- [ ] Moderación de contenido
+- [ ] Rate limiting y seguridad
 
-- ❌ Sin base de datos (solo localStorage)
-- ❌ Sin autenticación real
-- ❌ Sin sincronización entre dispositivos
-- ❌ Los datos se pierden si se borra el navegador
-- ❌ Un usuario puede votar múltiples veces (no hay control real)
-- ❌ No hay edición de votos
-- ❌ Sin notificaciones push
+## 🐛 Conocidas
+
+- ⚠️ Invitados: datos solo en localStorage (no sincronizan entre dispositivos)
+- ⚠️ Sin edición de votos una vez enviados
+- ⚠️ Sin control de múltiples votos del mismo usuario (confianza del equipo)
+- ⚠️ HashRouter genera URLs con # (necesario para GitHub Pages)
 
 ## 📱 Compatibilidad
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
-import { Mail, Lock, User, Chrome, LogIn, UserPlus, Sparkles } from 'lucide-react';
+import { Mail, Lock, User, Chrome, LogIn, UserPlus, Sparkles, Eye, EyeOff, Check } from 'lucide-react';
 
 const LoginScreen = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -13,6 +13,8 @@ const LoginScreen = ({ onLogin }) => {
   const [guestName, setGuestName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailValid, setEmailValid] = useState(null);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -106,6 +108,11 @@ const LoginScreen = ({ onLogin }) => {
     }
   };
 
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setEmailValid(regex.test(email));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-500 via-brand-600 to-brand-700 flex items-center justify-center p-6">
       <div className="max-w-md w-full">
@@ -143,33 +150,35 @@ const LoginScreen = ({ onLogin }) => {
                 setMode('login');
                 setError('');
               }}
-              className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all ${
+              className={`flex-1 px-3 py-2 rounded-lg font-semibold transition-all text-sm sm:text-base ${
                 mode === 'login'
                   ? 'bg-brand-500 text-white'
                   : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
               }`}
             >
-              Iniciar Sesión
+              <span className="hidden xs:inline">Iniciar Sesión</span>
+              <span className="xs:hidden">Login</span>
             </button>
             <button
               onClick={() => {
                 setMode('register');
                 setError('');
               }}
-              className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all ${
+              className={`flex-1 px-3 py-2 rounded-lg font-semibold transition-all text-sm sm:text-base ${
                 mode === 'register'
                   ? 'bg-brand-500 text-white'
                   : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
               }`}
             >
-              Registrarse
+              <span className="hidden xs:inline">Registrarse</span>
+              <span className="xs:hidden">Registro</span>
             </button>
             <button
               onClick={() => {
                 setMode('guest');
                 setError('');
               }}
-              className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all ${
+              className={`flex-1 px-3 py-2 rounded-lg font-semibold transition-all text-sm sm:text-base ${
                 mode === 'guest'
                   ? 'bg-brand-500 text-white'
                   : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
@@ -188,7 +197,7 @@ const LoginScreen = ({ onLogin }) => {
 
           {/* Login Form */}
           {mode === 'login' && (
-            <form onSubmit={handleEmailSignIn} className="space-y-4">
+            <form onSubmit={handleEmailSignIn} className="space-y-4 transition-all duration-300 ease-in-out">
               <div>
                 <label className="block text-sm font-semibold text-neutral-700 mb-2">
                   Email
@@ -199,11 +208,17 @@ const LoginScreen = ({ onLogin }) => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="input-field pl-11"
+                    onBlur={(e) => validateEmail(e.target.value)}
+                    className={`input-field pl-11 pr-11 ${
+                      emailValid === false ? 'border-error focus:ring-error' : ''
+                    }`}
                     placeholder="tu@email.com"
                     required
                     disabled={loading}
                   />
+                  {emailValid && (
+                    <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-success" />
+                  )}
                 </div>
               </div>
 
@@ -214,14 +229,22 @@ const LoginScreen = ({ onLogin }) => {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input-field pl-11"
+                    className="input-field pl-11 pr-11"
                     placeholder="••••••••"
                     required
                     disabled={loading}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
 
@@ -238,7 +261,7 @@ const LoginScreen = ({ onLogin }) => {
 
           {/* Register Form */}
           {mode === 'register' && (
-            <form onSubmit={handleEmailRegister} className="space-y-4">
+            <form onSubmit={handleEmailRegister} className="space-y-4 transition-all duration-300 ease-in-out">
               <div>
                 <label className="block text-sm font-semibold text-neutral-700 mb-2">
                   Nombre
@@ -266,11 +289,17 @@ const LoginScreen = ({ onLogin }) => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="input-field pl-11"
+                    onBlur={(e) => validateEmail(e.target.value)}
+                    className={`input-field pl-11 pr-11 ${
+                      emailValid === false ? 'border-error focus:ring-error' : ''
+                    }`}
                     placeholder="tu@email.com"
                     required
                     disabled={loading}
                   />
+                  {emailValid && (
+                    <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-success" />
+                  )}
                 </div>
               </div>
 
@@ -281,15 +310,23 @@ const LoginScreen = ({ onLogin }) => {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input-field pl-11"
+                    className="input-field pl-11 pr-11"
                     placeholder="Mínimo 6 caracteres"
                     required
                     disabled={loading}
                     minLength={6}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
 
@@ -306,7 +343,7 @@ const LoginScreen = ({ onLogin }) => {
 
           {/* Guest Mode Form */}
           {mode === 'guest' && (
-            <form onSubmit={handleGuestMode} className="space-y-4">
+            <form onSubmit={handleGuestMode} className="space-y-4 transition-all duration-300 ease-in-out">
               <div className="text-center mb-4">
                 <div className="text-4xl mb-2">👋</div>
                 <p className="text-sm text-neutral-600">
