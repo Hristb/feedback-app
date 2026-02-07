@@ -3,8 +3,9 @@ import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { doc, setDoc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from './firebase';
-import LoginScreen from './pages/LoginScreen';
+import LandingPage from './pages/LandingPage';
 import WelcomeScreen from './pages/WelcomeScreen';
+import LoginScreen from './pages/LoginScreen';
 import HomeScreen from './pages/HomeScreen';
 import CreateOrJoinSquad from './pages/CreateOrJoinSquad';
 import SquadDashboard from './pages/SquadDashboard';
@@ -251,7 +252,19 @@ function App() {
     <Router>
       <div className="min-h-screen">
         <Routes>
-          {/* Login Screen - Solo si NO hay userProfile */}
+          {/* Landing Page - Página principal pública */}
+          <Route 
+            path="/" 
+            element={<LandingPage />} 
+          />
+
+          {/* Welcome/Onboarding - Carousel explicativo */}
+          <Route 
+            path="/welcome" 
+            element={<WelcomeScreen />} 
+          />
+
+          {/* Login Screen - Autenticación */}
           <Route 
             path="/login" 
             element={
@@ -259,20 +272,6 @@ function App() {
                 <Navigate to="/home" />
               ) : (
                 <LoginScreen onLogin={handleLogin} />
-              )
-            } 
-          />
-          
-          {/* Root - Redirige según estado */}
-          <Route 
-            path="/" 
-            element={
-              !userProfile ? (
-                <Navigate to="/login" />
-              ) : hasVisited ? (
-                <Navigate to="/home" />
-              ) : (
-                <WelcomeScreen />
               )
             } 
           />

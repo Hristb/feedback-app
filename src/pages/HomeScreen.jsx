@@ -57,10 +57,10 @@ const HomeScreen = ({ userProfile, onLogout }) => {
         <div className="text-center mb-8">
           <div className="text-6xl mb-4 animate-bounce">🦁</div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-brand-500 to-brand-700 bg-clip-text text-transparent mb-2">
-            Squad Vote
+            Kudos
           </h1>
           <p className="text-neutral-600 text-lg">
-            Reconoce las fortalezas de tu equipo
+            Da reconocimiento, construye equipo
           </p>
         </div>
 

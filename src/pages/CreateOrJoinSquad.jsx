@@ -101,10 +101,10 @@ const CreateOrJoinSquad = ({ onCreateSquad, onJoinSquad, userProfile }) => {
           <div className="text-center mb-8">
             <div className="text-5xl mb-4">🦁</div>
             <h1 className="text-3xl font-bold text-neutral-800 mb-2">
-              Squad Vote
+              Kudos
             </h1>
             <p className="text-neutral-600">
-              ¿Qué deseas hacer?
+              Reconoce las fortalezas de tu equipo
             </p>
           </div>
 

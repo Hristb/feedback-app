@@ -121,8 +121,8 @@ const LoginScreen = ({ onLogin }) => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl shadow-2xl mb-4">
             <Sparkles className="w-10 h-10 text-brand-500" />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">Squad Vote</h1>
-          <p className="text-brand-100">Feedback anónimo con tu equipo</p>
+          <h1 className="text-4xl font-bold text-white mb-2">Kudos</h1>
+          <p className="text-brand-100">Reconoce las fortalezas que hacen únicos a tus compañeros</p>
         </div>
 
         {/* Main Card */}

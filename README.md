@@ -1,25 +1,31 @@
-# 🦁 Squad Vote
+# 🦁 Kudos
 
-Una aplicación web mobile-first para que equipos reconozcan las fortalezas de sus miembros de forma divertida y significativa.
+**Reconoce las fortalezas que hacen únicos a tus compañeros**
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
 ![React](https://img.shields.io/badge/React-18.2-61dafb)
 ![Vite](https://img.shields.io/badge/Vite-5.0-646cff)
 ![Firebase](https://img.shields.io/badge/Firebase-12.9-orange)
 
 🔗 **[Ver Demo en Vivo](https://hristb.github.io/feedback-app/)**
 
-## 🎯 ¿Qué es Squad Vote?
+## 🎯 ¿Qué es Kudos?
 
-Squad Vote es una aplicación que permite a los equipos realizar votaciones para reconocer las cualidades de cada miembro. Cada persona puede:
-- ✅ Crear o unirse a un equipo (Squad)
-- ✅ Votar por un compañero
-- ✅ Asignar un animal que lo representa
-- ✅ Destacar una cualidad especial
-- ✅ Compartir la razón de su elección
-- ✅ Ver los resultados cuando todos hayan votado
+Kudos es la forma más divertida y significativa de reconocer las fortalezas únicas de cada persona en tu equipo. No solo votas, celebras lo que hace especial a cada compañero.
+
+**En 2 minutos puedes:**
+- ✨ Crear o unirte a un equipo con un código
+- 🦁 Reconocer a un compañero con un animal totémico
+- ⭐ Destacar su cualidad más especial
+- 💬 Compartir por qué lo elegiste
+- 🎉 Descubrir cómo te ven los demás
 
 ## 🚀 Características Principales
+
+### 🌟 Onboarding Claro
+- **Landing Page**: Explica qué es Kudos antes de empezar
+- **Carousel de 3 pasos**: Tutorial visual interactivo
+- **Sin fricción**: De visitante a usuario en segundos
 
 ### Autenticación Flexible
 - 🔐 **Google Sign-In**: Login rápido con cuenta de Google
