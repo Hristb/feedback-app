@@ -36,41 +36,88 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Cargar karma points del usuario desde Firestore
+        // Cargar perfil completo del usuario desde Firestore
         try {
           const userRef = doc(db, 'users', user.uid);
           const userSnap = await getDoc(userRef);
           
-          const profile = {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName || user.email?.split('@')[0],
-            photoURL: user.photoURL,
-            authProvider: 'firebase',
-            karmaPoints: userSnap.exists() ? (userSnap.data().karmaPoints || 0) : 0,
-            recognitionsGiven: userSnap.exists() ? (userSnap.data().recognitionsGiven || 0) : 0,
-            recognitionsReceived: userSnap.exists() ? (userSnap.data().recognitionsReceived || 0) : 0
-          };
-          
-          // Solo actualizar si es diferente al perfil actual
-          setUserProfile(prevProfile => {
-            if (!prevProfile || prevProfile.uid !== profile.uid) {
-              localStorage.setItem('userProfile', JSON.stringify(profile));
-              return profile;
-            }
-            return prevProfile;
-          });
+          if (userSnap.exists()) {
+            // Usuario existe en Firestore, cargar todos sus datos
+            const userData = userSnap.data();
+            const profile = {
+              uid: user.uid,
+              email: user.email,
+              displayName: user.displayName || userData.displayName || user.email?.split('@')[0],
+              photoURL: user.photoURL || userData.photoURL,
+              authProvider: userData.authProvider || 'firebase',
+              karmaPoints: userData.karmaPoints || 0,
+              level: userData.level || 'Bronze',
+              achievements: userData.achievements || [],
+              stats: userData.stats || {
+                recognitionsGiven: 0,
+                recognitionsReceived: 0,
+                currentStreak: 0,
+                bestStreak: 0,
+                mostVotedCount: 0
+              }
+            };
+            
+            setUserProfile(profile);
+            localStorage.setItem('userProfile', JSON.stringify(profile));
+            
+            // Actualizar lastLogin
+            await updateDoc(userRef, {
+              lastLogin: new Date()
+            });
+          } else {
+            // Usuario no existe en Firestore, crear perfil básico
+            const newUserData = {
+              email: user.email,
+              displayName: user.displayName || user.email?.split('@')[0],
+              photoURL: user.photoURL,
+              authProvider: user.providerData[0]?.providerId || 'firebase',
+              karmaPoints: 0,
+              level: 'Bronze',
+              achievements: [],
+              stats: {
+                recognitionsGiven: 0,
+                recognitionsReceived: 0,
+                currentStreak: 0,
+                bestStreak: 0,
+                mostVotedCount: 0
+              },
+              createdAt: new Date(),
+              lastLogin: new Date()
+            };
+            
+            await setDoc(userRef, newUserData);
+            
+            const profile = { uid: user.uid, ...newUserData };
+            setUserProfile(profile);
+            localStorage.setItem('userProfile', JSON.stringify(profile));
+          }
         } catch (error) {
-          console.error('Error loading user karma:', error);
+          console.error('Error loading user from Firestore:', error);
+          // Fallback: crear perfil básico sin Firestore
           const profile = {
             uid: user.uid,
             email: user.email,
             displayName: user.displayName || user.email?.split('@')[0],
             photoURL: user.photoURL,
             authProvider: 'firebase',
-            karmaPoints: 0
+            karmaPoints: 0,
+            level: 'Bronze',
+            achievements: [],
+            stats: {
+              recognitionsGiven: 0,
+              recognitionsReceived: 0,
+              currentStreak: 0,
+              bestStreak: 0,
+              mostVotedCount: 0
+            }
           };
           setUserProfile(profile);
+          localStorage.setItem('userProfile', JSON.stringify(profile));
         }
       }
       setLoading(false);

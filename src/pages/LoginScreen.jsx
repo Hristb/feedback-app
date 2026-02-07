@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth, googleProvider } from '../firebase';
+import { auth, googleProvider, db } from '../firebase';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { Mail, Lock, User, Chrome, LogIn, UserPlus, Sparkles, Eye, EyeOff, Check } from 'lucide-react';
 
 const LoginScreen = ({ onLogin }) => {
@@ -16,24 +17,73 @@ const LoginScreen = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [emailValid, setEmailValid] = useState(null);
 
+  // Función para guardar/actualizar usuario en Firestore
+  const saveUserToFirestore = async (uid, userData) => {
+    try {
+      const userRef = doc(db, 'users', uid);
+      const userSnap = await getDoc(userRef);
+      
+      if (userSnap.exists()) {
+        // Usuario ya existe, solo actualizar lastLogin
+        await setDoc(userRef, {
+          lastLogin: serverTimestamp()
+        }, { merge: true });
+        
+        // Retornar datos existentes con karma y demás
+        return { ...userSnap.data(), uid };
+      } else {
+        // Nuevo usuario, crear perfil completo
+        const newUserData = {
+          ...userData,
+          karmaPoints: 0,
+          level: 'Bronze',
+          achievements: [],
+          stats: {
+            recognitionsGiven: 0,
+            recognitionsReceived: 0,
+            currentStreak: 0,
+            bestStreak: 0,
+            mostVotedCount: 0
+          },
+          createdAt: serverTimestamp(),
+          lastLogin: serverTimestamp()
+        };
+        
+        await setDoc(userRef, newUserData);
+        return { ...newUserData, uid };
+      }
+    } catch (error) {
+      console.error('Error saving user to Firestore:', error);
+      throw error;
+    }
+  };
+
   const handleGoogleSignIn = async () => {
     try {
       setLoading(true);
       setError('');
       const result = await signInWithPopup(auth, googleProvider);
-      const userProfile = {
-        uid: result.user.uid,
+      
+      // Guardar usuario en Firestore
+      const userProfile = await saveUserToFirestore(result.user.uid, {
         email: result.user.email,
         displayName: result.user.displayName,
         photoURL: result.user.photoURL,
         authProvider: 'google'
-      };
+      });
+      
       localStorage.setItem('userProfile', JSON.stringify(userProfile));
       onLogin(userProfile);
       navigate('/home');
     } catch (error) {
       console.error('Error signing in with Google:', error);
-      setError('Error al iniciar sesión con Google');
+      if (error.code === 'auth/popup-closed-by-user') {
+        setError('❌ Inicio de sesión cancelado');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        setError('❌ Dominio no autorizado. Configura tu dominio en Firebase Console');
+      } else {
+        setError('❌ Error al iniciar sesión con Google');
+      }
     } finally {
       setLoading(false);
     }
@@ -45,18 +95,26 @@ const LoginScreen = ({ onLogin }) => {
       setLoading(true);
       setError('');
       const result = await signInWithEmailAndPassword(auth, email, password);
-      const userProfile = {
-        uid: result.user.uid,
+      
+      // Cargar perfil desde Firestore
+      const userProfile = await saveUserToFirestore(result.user.uid, {
         email: result.user.email,
         displayName: result.user.displayName || email.split('@')[0],
         authProvider: 'email'
-      };
+      });
+      
       localStorage.setItem('userProfile', JSON.stringify(userProfile));
       onLogin(userProfile);
       navigate('/home');
     } catch (error) {
       console.error('Error signing in:', error);
-      setError('Email o contraseña incorrectos');
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        setError('❌ Email o contraseña incorrectos');
+      } else if (error.code === 'auth/invalid-credential') {
+        setError('❌ Credenciales inválidas');
+      } else {
+        setError('❌ Error al iniciar sesión');
+      }
     } finally {
       setLoading(false);
     }
@@ -64,27 +122,50 @@ const LoginScreen = ({ onLogin }) => {
 
   const handleEmailRegister = async (e) => {
     e.preventDefault();
+    
+    // Validaciones previas
+    if (!email || !email.trim()) {
+      setError('El email es requerido');
+      return;
+    }
+    
+    if (!emailValid) {
+      setError('El formato del email no es válido');
+      return;
+    }
+    
+    if (!password || password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    
     try {
       setLoading(true);
       setError('');
       const result = await createUserWithEmailAndPassword(auth, email, password);
-      const userProfile = {
-        uid: result.user.uid,
+      
+      // Crear perfil en Firestore
+      const userProfile = await saveUserToFirestore(result.user.uid, {
         email: result.user.email,
         displayName: displayName || email.split('@')[0],
         authProvider: 'email'
-      };
+      });
+      
       localStorage.setItem('userProfile', JSON.stringify(userProfile));
       onLogin(userProfile);
       navigate('/home');
     } catch (error) {
       console.error('Error registering:', error);
       if (error.code === 'auth/email-already-in-use') {
-        setError('Este email ya está registrado');
+        setError('❌ Este email ya está registrado. Intenta iniciar sesión.');
       } else if (error.code === 'auth/weak-password') {
-        setError('La contraseña debe tener al menos 6 caracteres');
+        setError('❌ La contraseña debe tener al menos 6 caracteres');
+      } else if (error.code === 'auth/invalid-email') {
+        setError('❌ El formato del email no es válido');
+      } else if (error.code === 'auth/operation-not-allowed') {
+        setError('❌ El registro con email está deshabilitado. Contacta al administrador.');
       } else {
-        setError('Error al crear la cuenta');
+        setError(`❌ Error al crear la cuenta: ${error.message}`);
       }
     } finally {
       setLoading(false);
@@ -288,7 +369,10 @@ const LoginScreen = ({ onLogin }) => {
                   <input
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      validateEmail(e.target.value);
+                    }}
                     onBlur={(e) => validateEmail(e.target.value)}
                     className={`input-field pl-11 pr-11 ${
                       emailValid === false ? 'border-error focus:ring-error' : ''
@@ -301,6 +385,11 @@ const LoginScreen = ({ onLogin }) => {
                     <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-success" />
                   )}
                 </div>
+                {emailValid === false && (
+                  <p className="text-xs text-error mt-1">
+                    ❌ El formato del email no es válido
+                  </p>
+                )}
               </div>
 
               <div>
@@ -313,7 +402,9 @@ const LoginScreen = ({ onLogin }) => {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input-field pl-11 pr-11"
+                    className={`input-field pl-11 pr-11 ${
+                      password && password.length < 6 ? 'border-warning focus:ring-warning' : ''
+                    }`}
                     placeholder="Mínimo 6 caracteres"
                     required
                     disabled={loading}
@@ -328,6 +419,11 @@ const LoginScreen = ({ onLogin }) => {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
+                {password && password.length < 6 && (
+                  <p className="text-xs text-warning-dark mt-1">
+                    ⚠️ La contraseña debe tener al menos 6 caracteres
+                  </p>
+                )}
               </div>
 
               <button
