@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-import { Bell, MoreVertical, LogOut, Home, User, ArrowLeft, Trophy } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Bell, MoreVertical, LogOut, Home, User, ArrowLeft, Trophy, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { calculateLevel } from '../utils/karmaSystem';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 
 const Header = ({ userName, userProfile, onLogout, showBackToHome = true }) => {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
+  const [pendingRequests, setPendingRequests] = useState(0);
 
   // Obtener la primera letra del nombre
   const getInitial = (name) => {
@@ -25,6 +28,24 @@ const Header = ({ userName, userProfile, onLogout, showBackToHome = true }) => {
   // Calcular nivel del usuario basado en karma points
   const karmaPoints = userProfile?.karmaPoints || 0;
   const level = calculateLevel(karmaPoints);
+
+  // Escuchar solicitudes de amistad pendientes en tiempo real
+  useEffect(() => {
+    if (!userProfile?.uid) return;
+
+    const requestsRef = collection(db, 'friendRequests');
+    const q = query(
+      requestsRef,
+      where('to', '==', userProfile.uid),
+      where('status', '==', 'pending')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setPendingRequests(snapshot.size);
+    });
+
+    return () => unsubscribe();
+  }, [userProfile?.uid]);
 
   return (
     <header className="bg-gradient-to-r from-white via-brand-50/30 to-white border-b-2 border-brand-200/50 sticky top-0 z-50 shadow-md backdrop-blur-sm">
@@ -59,10 +80,17 @@ const Header = ({ userName, userProfile, onLogout, showBackToHome = true }) => {
             )}
 
             {/* Notification Bell */}
-            <button className="p-2 rounded-full hover:bg-brand-100 transition-colors relative group">
+            <button 
+              onClick={() => navigate('/notifications')}
+              className="p-2 rounded-full hover:bg-brand-100 transition-colors relative group"
+            >
               <Bell className="w-5 h-5 text-neutral-600 group-hover:text-brand-600 transition-colors" />
-              {/* Badge de notificaciones (opcional) */}
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full animate-pulse"></span>
+              {/* Badge de notificaciones */}
+              {pendingRequests > 0 && (
+                <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] bg-error rounded-full flex items-center justify-center text-[10px] font-bold text-white border-2 border-white animate-pulse">
+                  {pendingRequests > 9 ? '9+' : pendingRequests}
+                </span>
+              )}
             </button>
 
             {/* Avatar con inicial */}
@@ -118,6 +146,25 @@ const Header = ({ userName, userProfile, onLogout, showBackToHome = true }) => {
                         <div className="font-semibold">Mi Perfil</div>
                         <div className="text-xs text-neutral-500">Ver información</div>
                       </div>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        navigate('/notifications');
+                        setShowMenu(false);
+                      }}
+                      className="w-full px-4 py-3 text-left hover:bg-brand-50 transition-colors flex items-center gap-3 text-neutral-700 hover:text-brand-700 relative"
+                    >
+                      <UserPlus className="w-5 h-5" />
+                      <div className="flex-1">
+                        <div className="font-semibold">Solicitudes de Amistad</div>
+                        <div className="text-xs text-neutral-500">Ver notificaciones</div>
+                      </div>
+                      {pendingRequests > 0 && (
+                        <span className="min-w-[20px] h-5 bg-error rounded-full flex items-center justify-center text-xs font-bold text-white px-1.5">
+                          {pendingRequests}
+                        </span>
+                      )}
                     </button>
 
                     <div className="border-t border-brand-100 my-2" />

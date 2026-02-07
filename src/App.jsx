@@ -12,6 +12,7 @@ import ResultsScreen from './pages/ResultsScreen';
 import ProfileScreen from './pages/ProfileScreen';
 import LeaderboardScreen from './pages/LeaderboardScreen';
 import AchievementsScreen from './pages/AchievementsScreen';
+import NotificationsScreen from './pages/NotificationsScreen';
 
 function App() {
   const [squads, setSquads] = useState({});
@@ -446,6 +447,22 @@ function App() {
               ) : (
                 <AchievementsScreen 
                   userProfile={userProfile}
+                  onLogout={handleLogout}
+                />
+              )
+            } 
+          />
+
+          {/* Notifications - Solicitudes de amistad */}
+          <Route 
+            path="/notifications" 
+            element={
+              !userProfile ? (
+                <Navigate to="/login" />
+              ) : (
+                <NotificationsScreen 
+                  userProfile={userProfile}
+                  currentUser={currentUser}
                   onLogout={handleLogout}
                 />
               )

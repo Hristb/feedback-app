@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Trophy, TrendingUp, Star, Zap, Award, ArrowLeft, Target, Crown, Heart, Gift, Users, Calendar, Sparkles, Mail, Shield } from 'lucide-react';
+import { Trophy, TrendingUp, Star, Zap, Award, ArrowLeft, Target, Crown, Heart, Gift, Users, Calendar, Sparkles, Mail, Shield, UserPlus, X, Check, Copy } from 'lucide-react';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import { calculateLevel, calculateProgress, ACHIEVEMENTS } from '../utils/karmaSystem';
@@ -11,6 +11,11 @@ const ProfileScreen = ({ currentUser, userProfile, onLogout }) => {
   const navigate = useNavigate();
   const [userStats, setUserStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showAddFriendModal, setShowAddFriendModal] = useState(false);
+  const [friendInput, setFriendInput] = useState('');
+  const [friendError, setFriendError] = useState('');
+  const [sendingRequest, setSendingRequest] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   useEffect(() => {
     const loadUserStats = async () => {
@@ -55,6 +60,105 @@ const ProfileScreen = ({ currentUser, userProfile, onLogout }) => {
       } finally {
         setLoading(false);
       }
+  const handleSendFriendRequest = async () => {
+    if (!friendInput.trim()) {
+      setFriendError('Ingresa un email o código único');
+      return;
+    }
+
+    setSendingRequest(true);
+    setFriendError('');
+
+    try {
+      // Buscar usuario por email o por uid (código de invitado)
+      const usersRef = collection(db, 'users');
+      let targetUser = null;
+      let targetUserId = null;
+
+      // Buscar por email primero
+      if (friendInput.includes('@')) {
+        const emailQuery = query(usersRef, where('email', '==', friendInput.toLowerCase()));
+        const emailSnapshot = await getDocs(emailQuery);
+        
+        if (!emailSnapshot.empty) {
+          targetUserId = emailSnapshot.docs[0].id;
+          targetUser = emailSnapshot.docs[0].data();
+        }
+      } else {
+        // Buscar por código único (uid de invitado)
+        const userDoc = await getDoc(doc(db, 'users', friendInput));
+        if (userDoc.exists()) {
+          targetUserId = friendInput;
+          targetUser = userDoc.data();
+        }
+      }
+
+      if (!targetUser || !targetUserId) {
+        setFriendError('❌ Usuario no encontrado');
+        setSendingRequest(false);
+        return;
+      }
+
+      // No puedes agregarte a ti mismo
+      if (targetUserId === userProfile.uid) {
+        setFriendError('❌ No puedes agregarte a ti mismo como amigo');
+        setSendingRequest(false);
+        return;
+      }
+
+      // Verificar si ya son amigos
+      const userRef = doc(db, 'users', userProfile.uid);
+      const userSnap = await getDoc(userRef);
+      const friends = userSnap.exists() ? (userSnap.data().friends || []) : [];
+
+      if (friends.includes(targetUserId)) {
+        setFriendError('❌ Ya son amigos');
+        setSendingRequest(false);
+        return;
+      }
+
+      // Verificar si ya existe una solicitud pendiente
+      const requestsRef = collection(db, 'friendRequests');
+      const existingRequest = query(
+        requestsRef,
+        where('from', '==', userProfile.uid),
+        where('to', '==', targetUserId),
+        where('status', '==', 'pending')
+      );
+      const existingSnap = await getDocs(existingRequest);
+
+      if (!existingSnap.empty) {
+        setFriendError('⚠️ Ya enviaste una solicitud a este usuario');
+        setSendingRequest(false);
+        return;
+      }
+
+      // Crear solicitud de amistad
+      await addDoc(collection(db, 'friendRequests'), {
+        from: userProfile.uid,
+        to: targetUserId,
+        status: 'pending',
+        timestamp: serverTimestamp()
+      });
+
+      // Éxito
+      setShowAddFriendModal(false);
+      setFriendInput('');
+      alert(`✅ Solicitud enviada a ${targetUser.displayName}`);
+    } catch (error) {
+      console.error('Error sending friend request:', error);
+      setFriendError('❌ Error al enviar solicitud: ' + error.message);
+    } finally {
+      setSendingRequest(false);
+    }
+  };
+
+  const copyUniqueCode = () => {
+    navigator.clipboard.writeText(userProfile.uid);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
+
     };
 
     loadUserStats();
@@ -199,6 +303,59 @@ const ProfileScreen = ({ currentUser, userProfile, onLogout }) => {
         <div className="card mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
+              <Award className="w-5 h-5 text-brand-500" />
+              <h2 className="text-xl font-bold text-neutral-800">Mis Amigos</h2>
+            </div>
+            <button
+              onClick={() => setShowAddFriendModal(true)}
+              className="btn-primary py-2 px-4 text-sm flex items-center gap-2"
+            >
+              <UserPlus className="w-4 h-4" />
+              Agregar Amigo
+            </button>
+          </div>
+
+          {/* Código único para compartir */}
+          <div className="bg-brand-50 border-2 border-brand-200 rounded-xl p-4 mb-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <div className="text-sm font-semibold text-neutral-700 mb-1">
+                  Tu código único
+                </div>
+                <p className="text-xs text-neutral-600 mb-2">
+                  Comparte este código para que te agreguen como amigo
+                </p>
+                <div className="flex items-center gap-2">
+                  <code className="px-3 py-1.5 bg-white border border-brand-300 rounded-lg text-brand-600 font-mono text-sm">
+                    {userProfile.uid}
+                  </code>
+                  <button
+                    onClick={copyUniqueCode}
+                    className="p-2 hover:bg-white rounded-lg transition-colors"
+                    title="Copiar código"
+                  >
+                    {copiedCode ? (
+                      <Check className="w-4 h-4 text-success" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-neutral-600" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              <div className="text-3xl">🔗</div>
+            </div>
+          </div>
+
+          <div className="text-center text-neutral-500 py-8">
+            <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <p className="text-sm">Lista de amigos próximamente...</p>
+          </div>
+        </div>
+
+        {/* Original Achievements Section */}
+        <div className="card mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
               <Award className="w-6 h-6 text-brand-500" />
               <h2 className="text-xl font-bold text-neutral-800">Logros</h2>
             </div>
@@ -299,6 +456,89 @@ const ProfileScreen = ({ currentUser, userProfile, onLogout }) => {
         </div>
       </div>
       
+      {/* Modal para agregar amigo */}
+      {showAddFriendModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
+            <button
+              onClick={() => {
+                setShowAddFriendModal(false);
+                setFriendInput('');
+                setFriendError('');
+              }}
+              className="absolute top-4 right-4 p-2 hover:bg-neutral-100 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5 text-neutral-600" />
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <UserPlus className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-neutral-800 mb-2">
+                Agregar Amigo
+              </h2>
+              <p className="text-neutral-600 text-sm">
+                Ingresa el email o código único de tu amigo
+              </p>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                Email o Código Único
+              </label>
+              <input
+                type="text"
+                value={friendInput}
+                onChange={(e) => setFriendInput(e.target.value)}
+                placeholder="ejemplo@email.com o guest_123456"
+                className="input-field"
+                autoFocus
+              />
+              {friendError && (
+                <p className="text-xs text-error mt-2">{friendError}</p>
+              )}
+            </div>
+
+            <div className="bg-brand-50 border border-brand-200 rounded-lg p-3 mb-4">
+              <p className="text-xs text-neutral-600">
+                💡 <strong>Tip:</strong> Si tu amigo es invitado, pídele su código único desde su perfil
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowAddFriendModal(false);
+                  setFriendInput('');
+                  setFriendError('');
+                }}
+                className="btn-secondary flex-1"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSendFriendRequest}
+                disabled={sendingRequest || !friendInput.trim()}
+                className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {sendingRequest ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="w-4 h-4" />
+                    Enviar Solicitud
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <BottomNav />
     </div>
   );
